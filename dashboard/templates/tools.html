@@ -1,0 +1,54 @@
+{{define "tools"}}{{template "layout" .}}{{end}}
+
+{{define "content"}}
+<div class="space-y-4 max-w-2xl">
+  <div>
+    <h1 class="text-xl font-semibold tracking-tight">Tools</h1>
+    <p class="text-sm text-muted-foreground mt-1">Publish an MQTT message from the dashboard.</p>
+  </div>
+
+  {{with .Flash}}
+  <div class="rounded bg-success/10 text-success border border-success/20 p-2 text-sm">{{.}}</div>
+  {{end}}
+  {{with .Error}}
+  <div class="rounded bg-destructive/10 text-destructive border border-destructive/20 p-2 text-sm">{{.}}</div>
+  {{end}}
+
+  <form method="POST" action="/dashboard/tools/publish" class="bg-card text-card-foreground rounded shadow-sm border border-border p-4 space-y-3">
+    <input type="hidden" name="_csrf" value="{{.CSRF}}" />
+    <label class="block">
+      <span class="text-xs text-muted-foreground">Topic</span>
+      <input name="topic" required value="{{.Form.Topic}}"
+        class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm focus:outline-none focus:border-ring" />
+    </label>
+    <label class="block">
+      <span class="text-xs text-muted-foreground">Payload</span>
+      <textarea name="payload" rows="6"
+        class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm font-mono focus:outline-none focus:border-ring">{{.Form.Payload}}</textarea>
+    </label>
+    <div class="flex items-center gap-4">
+      <label class="block">
+        <span class="text-xs text-muted-foreground">QoS</span>
+        <select name="qos" class="mt-1 px-3 py-2 rounded border border-input text-sm">
+          <option value="0" {{if eq .Form.QoS 0}}selected{{end}}>0 - At most once</option>
+          <option value="1" {{if eq .Form.QoS 1}}selected{{end}}>1 - At least once</option>
+          <option value="2" {{if eq .Form.QoS 2}}selected{{end}}>2 - Exactly once</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-xs text-muted-foreground invisible">Retain</span>
+        <span class="mt-1 inline-flex items-center gap-2 px-3 py-2 rounded border border-input bg-input text-sm">
+          <input type="checkbox" name="retain" value="1" {{if .Form.Retain}}checked{{end}} />
+          Retain
+        </span>
+      </label>
+    </div>
+    <div>
+      <button {{if .Readonly}}disabled title="Read-only role"{{end}}
+        class="px-4 py-2 rounded bg-primary hover:bg-primary/90 disabled:bg-secondary disabled:cursor-not-allowed text-white text-sm font-medium">
+        Publish
+      </button>
+    </div>
+  </form>
+</div>
+{{end}}

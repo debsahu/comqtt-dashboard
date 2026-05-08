@@ -1,0 +1,4 @@
+bin/
+comqtt-dashboard
+*.log
+data/

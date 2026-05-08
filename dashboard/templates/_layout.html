@@ -1,0 +1,40 @@
+{{define "layout"}}
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{.Title}} - comqtt</title>
+  <link rel="stylesheet" href="/dashboard/static/tailwind.css" />
+  <script src="/dashboard/static/htmx.min.js" defer></script>
+  <script src="/dashboard/static/htmx-sse.js" defer></script>
+  <script src="/dashboard/static/theme.js" defer></script>
+  <script src="/dashboard/static/nav.js" defer></script>
+</head>
+<body class="h-full bg-background text-foreground">
+  <div class="flex h-full lg:flex-row flex-col">
+    <header class="lg:hidden flex items-center justify-between bg-card text-card-foreground border-b border-border px-4 py-2">
+      <button id="nav-toggle" type="button" aria-label="Toggle navigation"
+        class="p-2 rounded hover:bg-accent">
+        <svg viewBox="0 0 20 20" class="w-5 h-5" fill="currentColor" aria-hidden="true">
+          <path d="M3 5h14v2H3V5zm0 4h14v2H3V9zm0 4h14v2H3v-2z"/>
+        </svg>
+      </button>
+      <div class="text-sm font-semibold tracking-tight">
+        <span class="text-foreground">com</span>qtt
+        <span class="text-muted-foreground ml-1">/ {{.Title}}</span>
+      </div>
+      <div class="w-9"></div>
+    </header>
+    <div id="nav-backdrop"
+         class="lg:hidden fixed inset-0 bg-black/50 z-30 hidden"
+         aria-hidden="true"></div>
+    {{template "nav" .}}
+    <main class="flex-1 overflow-y-auto p-4 lg:p-8">
+      {{template "flash" .}}
+      {{template "content" .}}
+    </main>
+  </div>
+</body>
+</html>
+{{end}}

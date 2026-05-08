@@ -1,0 +1,79 @@
+{{define "client_detail"}}{{template "layout" .}}{{end}}
+
+{{define "content"}}
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight font-mono">{{.ClientID}}</h1>
+      <p class="text-sm text-muted-foreground mt-1">
+        {{if .Online}}<span class="text-success">online</span>{{else}}<span class="text-muted-foreground">offline</span>{{end}}
+      </p>
+    </div>
+    <a href="/dashboard/clients" class="text-sm text-muted-foreground hover:text-foreground">&larr; Back to clients</a>
+  </div>
+
+  {{with .Flash}}<div class="rounded bg-success/10 text-success border border-success/20 p-2 text-sm">{{.}}</div>{{end}}
+  {{with .Error}}<div class="rounded bg-destructive/10 text-destructive border border-destructive/20 p-2 text-sm">{{.}}</div>{{end}}
+
+  <div class="border-b border-border flex gap-2 text-sm">
+    <a href="?tab=info"   class="px-3 py-2 -mb-px {{if eq .Tab "info"}}border-b-2 border-ring text-foreground{{else}}text-muted-foreground hover:text-foreground{{end}}">Info</a>
+    <a href="?tab=subs"   class="px-3 py-2 -mb-px {{if eq .Tab "subs"}}border-b-2 border-ring text-foreground{{else}}text-muted-foreground hover:text-foreground{{end}}">Subscriptions ({{.SubCount}})</a>
+    <a href="?tab=events" class="px-3 py-2 -mb-px {{if eq .Tab "events"}}border-b-2 border-ring text-foreground{{else}}text-muted-foreground hover:text-foreground{{end}}">Events</a>
+  </div>
+
+  {{if eq .Tab "info"}}
+  <div class="bg-card text-card-foreground rounded shadow-sm border border-border p-4 text-sm">
+    <dl class="grid grid-cols-3 gap-y-2">
+      <dt class="text-muted-foreground">Username</dt>
+      <dd class="col-span-2 font-mono">{{.Info.Username}}</dd>
+
+      <dt class="text-muted-foreground">Remote</dt>
+      <dd class="col-span-2 font-mono">{{.Info.Remote}}</dd>
+
+      <dt class="text-muted-foreground">Listener</dt>
+      <dd class="col-span-2 font-mono">{{.Info.Listener}}</dd>
+
+      <dt class="text-muted-foreground">Protocol</dt>
+      <dd class="col-span-2">MQTT v{{.Info.ProtocolVersion}}</dd>
+
+      <dt class="text-muted-foreground">Keepalive</dt>
+      <dd class="col-span-2">{{.Info.Keepalive}}s</dd>
+
+      <dt class="text-muted-foreground">Inflight</dt>
+      <dd class="col-span-2 tabular-nums">{{.Info.Inflight}}</dd>
+
+      <dt class="text-muted-foreground">Clean session</dt>
+      <dd class="col-span-2">{{.Info.Clean}}</dd>
+    </dl>
+  </div>
+  {{end}}
+
+  {{if eq .Tab "subs"}}
+  <div class="bg-card text-card-foreground rounded shadow-sm border border-border divide-y divide-border">
+    {{range .Subs}}
+    <div class="flex items-center justify-between px-4 py-2 text-sm">
+      <span class="font-mono">{{.Topic}}</span>
+      <span class="flex items-center gap-3">
+        <span class="text-xs text-muted-foreground">QoS {{.QoS}}</span>
+        <form method="POST" action="/dashboard/clients/{{$.ClientID}}/subscriptions/{{.TopicEncoded}}/delete">
+          <input type="hidden" name="_csrf" value="{{$.CSRF}}" />
+          <button {{if $.Readonly}}disabled title="Read-only role"{{end}}
+            class="text-destructive hover:underline disabled:text-muted-foreground disabled:cursor-not-allowed text-xs">
+            Unsubscribe
+          </button>
+        </form>
+      </span>
+    </div>
+    {{else}}
+    <div class="px-4 py-8 text-center text-sm text-muted-foreground">No subscriptions.</div>
+    {{end}}
+  </div>
+  {{end}}
+
+  {{if eq .Tab "events"}}
+  <div class="bg-card text-card-foreground rounded shadow-sm border border-border p-4 text-sm text-muted-foreground">
+    Live event filtering for a single client is not yet wired up. The Overview events feed shows all events; visit /dashboard/ for now.
+  </div>
+  {{end}}
+</div>
+{{end}}
