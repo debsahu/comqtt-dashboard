@@ -1,0 +1,55 @@
+comqtt {{ .Chart.AppVersion }} has been deployed in {{ .Values.mode }} mode.
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+Listeners (in-cluster):
+  MQTT  tcp://{{ include "comqtt.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.mqtt.port }}
+  WS    ws://{{ include "comqtt.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.ws.port }}/mqtt
+  HTTP  http://{{ include "comqtt.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.dashboard.port }}
+
+{{- if eq .Values.mode "cluster" }}
+
+Cluster mode: {{ .Values.replicaCount }} replicas. Pod-0 bootstraps Raft on
+first boot when its Raft data dir is empty; subsequent restarts skip the
+bootstrap flag automatically. Members:
+{{- range $i, $_ := until (.Values.replicaCount | int) }}
+  - {{ include "comqtt.headlessName" $ }}-{{ $i }}.{{ include "comqtt.headlessName" $ }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.cluster.gossipPort }}
+{{- end }}
+
+PodDisruptionBudget minAvailable = {{ include "comqtt.raftQuorum" . }} (Raft quorum).
+{{- end }}
+
+Quick smoke test:
+
+  kubectl run mqtt-pub --rm -i --restart=Never \
+    --image={{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }} -- \
+    mosquitto_pub -h {{ include "comqtt.fullname" . }} -p {{ .Values.service.mqtt.port }} \
+                  -t test/topic -m "hello from helm"
+
+To run the chart's bundled connectivity test:
+
+  helm test {{ .Release.Name }} --logs
+
+{{- if .Values.ingress.enabled }}
+
+WARNING: `ingress.*` is DEPRECATED. ingress-nginx is in retirement
+(https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/) and
+a Layer 7 Ingress cannot proxy raw MQTT. Migrate to `gateway.*`
+(Gateway API): set `gateway.enabled=true` plus `gateway.api.enabled=true`
+(and `gateway.mqtt.enabled=true` for raw MQTT) and supply a Gateway via
+`gateway.parentRefs`.
+{{- end }}
+
+{{- if .Values.gateway.enabled }}
+
+Gateway API routes:
+{{- if .Values.gateway.api.enabled }}
+  HTTPRoute  {{ include "comqtt.fullname" . }}-api  -> Service/{{ include "comqtt.fullname" . }}:{{ .Values.service.dashboard.port }}
+                                                       (REST API + /metrics)
+{{- end }}
+{{- if .Values.gateway.mqtt.enabled }}
+  TCPRoute   {{ include "comqtt.fullname" . }}-mqtt -> Service/{{ include "comqtt.fullname" . }}:{{ .Values.service.mqtt.port }}
+                                                       (requires gateway.networking.k8s.io/v1alpha2)
+{{- end }}
+{{- end }}

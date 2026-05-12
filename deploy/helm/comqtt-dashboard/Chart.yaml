@@ -1,0 +1,32 @@
+apiVersion: v2
+name: comqtt-dashboard
+description: |
+  Web dashboard add-on for comqtt, the lightweight Go MQTT broker. Ships the
+  broker plus the dashboard as a single image and supports both single-mode
+  (Deployment) and cluster-mode (StatefulSet with Raft + Gossip + Redis).
+type: application
+version: 0.1.0
+appVersion: "0.2.0"
+kubeVersion: ">=1.23.0-0"
+home: https://github.com/debsahu/comqtt-dashboard
+sources:
+  - https://github.com/debsahu/comqtt-dashboard
+keywords:
+  - mqtt
+  - broker
+  - iot
+  - messaging
+  - pub-sub
+  - cluster
+  - raft
+  - dashboard
+maintainers:
+  - name: Debashish Sahu
+    url: https://github.com/debsahu
+annotations:
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial chart release for the comqtt-dashboard add-on.
+    - kind: added
+      description: Gateway API support (HTTPRoute + TCPRoute) alongside Ingress.
+  artifacthub.io/license: MIT
