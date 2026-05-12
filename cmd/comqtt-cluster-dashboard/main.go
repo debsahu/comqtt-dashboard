@@ -40,6 +40,7 @@ import (
 	rauth "github.com/wind-c/comqtt/v2/plugin/auth/redis"
 	cokafka "github.com/wind-c/comqtt/v2/plugin/bridge/kafka"
 
+	addonclusterrest "github.com/debsahu/comqtt-dashboard/cluster/rest"
 	"github.com/debsahu/comqtt-dashboard/dashboard"
 	addonrest "github.com/debsahu/comqtt-dashboard/rest"
 )
@@ -160,13 +161,16 @@ func realMain(ctx context.Context) error {
 	defer redisClient.Close()
 
 	// Compose REST handlers: upstream cluster + upstream MQTT + dashboard
-	// addon endpoints + the dashboard UI. The cluster fan-out mirrors for
-	// addon endpoints land in chunk 2 of v0.2.0 (cluster/rest/).
+	// addon endpoints (per-node) + dashboard cluster mirrors (fan-out) +
+	// the dashboard UI itself.
 	handlers := csRt.New(agent).GenHandlers()
 	for path, h := range mqttRt.New(server).GenHandlers() {
 		handlers[path] = h
 	}
 	for path, h := range addonrest.New(server).GenHandlers() {
+		handlers[path] = h
+	}
+	for path, h := range addonclusterrest.New(agent, cfg.Mqtt.HTTP).GenHandlers() {
 		handlers[path] = h
 	}
 
