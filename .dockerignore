@@ -1,0 +1,27 @@
+# Build artifacts and local state - not source, not needed in the image
+bin/
+data/
+*.log
+
+# Built binaries (anchored)
+/comqtt-dashboard
+/comqtt-cluster-dashboard
+
+# Local working notes
+TODO.*.md
+
+# Tests artifacts
+*_test.go.cover.out
+
+# IDE / VCS metadata
+.git/
+.github/
+.idea/
+.vscode/
+
+# Deploy assets - the chart isn't needed inside the image
+deploy/
+
+# Documentation
+README.md
+LICENSE
