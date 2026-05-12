@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  go:
+    name: Go (vet, fmt, test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: gofmt -d
+        run: |
+          out=$(gofmt -d -s .)
+          if [ -n "$out" ]; then
+            echo "gofmt diff:"
+            echo "$out"
+            exit 1
+          fi
+      - name: go vet
+        run: go vet ./...
+      - name: go build (verify both binaries link)
+        run: |
+          go build -o /tmp/comqtt-dashboard ./cmd/comqtt-dashboard
+          go build -o /tmp/comqtt-cluster-dashboard ./cmd/comqtt-cluster-dashboard
+      - name: go test -race
+        run: go test -race -count=1 -timeout 5m ./...
+      - name: go test -race (integration-tagged)
+        run: go test -race -count=1 -timeout 5m -tags integration ./...
+
+  helm:
+    name: Helm (lint + template smoke)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.0
+      - name: helm lint (default)
+        run: helm lint deploy/helm/comqtt-dashboard
+      - name: helm lint (ci/single-values.yaml)
+        run: helm lint deploy/helm/comqtt-dashboard -f deploy/helm/comqtt-dashboard/ci/single-values.yaml
+      - name: helm lint (ci/cluster-values.yaml)
+        run: helm lint deploy/helm/comqtt-dashboard -f deploy/helm/comqtt-dashboard/ci/cluster-values.yaml
+      - name: helm template (single mode, inline creds)
+        run: |
+          helm template ci deploy/helm/comqtt-dashboard \
+            --set image.tag=0.2.0 \
+            --set dashboard.initialPassword.value=ci-test \
+            --set dashboard.sessionSecret.value=this-is-at-least-16-bytes \
+            > /tmp/single.yaml
+          test -s /tmp/single.yaml
+          grep -q '/comqtt-dashboard' /tmp/single.yaml
+      - name: helm template (cluster mode, 3 replicas)
+        run: |
+          helm template ci deploy/helm/comqtt-dashboard \
+            --set mode=cluster \
+            --set image.tag=0.2.0 \
+            --set config.redis.options.addr=valkey:6379 \
+            --set dashboard.initialPassword.value=ci-test \
+            > /tmp/cluster.yaml
+          test -s /tmp/cluster.yaml
+          grep -q '/comqtt-cluster-dashboard' /tmp/cluster.yaml
+      - name: helm template (existingSecret path)
+        run: |
+          helm template ci deploy/helm/comqtt-dashboard \
+            --set image.tag=0.2.0 \
+            --set dashboard.sessionSecret.existingSecret=external-secret \
+            --set dashboard.initialPassword.existingSecret=external-secret \
+            > /tmp/external.yaml
+          grep -q 'external-secret' /tmp/external.yaml
+
+  docker:
+    name: Docker (buildx validate, no push)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build (linux/amd64, linux/arm64; cache via gha)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: false
+          load: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: comqtt-dashboard:ci
