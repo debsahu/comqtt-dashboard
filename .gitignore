@@ -1,5 +1,8 @@
 bin/
-comqtt-dashboard
+# Built binaries at the repo root (anchored to avoid matching
+# deploy/helm/comqtt-dashboard/ and similar paths).
+/comqtt-dashboard
+/comqtt-cluster-dashboard
 *.log
 data/
 
