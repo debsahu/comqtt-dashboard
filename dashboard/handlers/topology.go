@@ -25,7 +25,7 @@ func ringTopologySVG(members []nodeMember, self, leader string, cluster bool) te
 	const (
 		w, h = 240.0, 160.0
 		cx   = w / 2
-		cy   = h / 2 - 6
+		cy   = h/2 - 6
 		r    = 52.0
 	)
 	if len(members) == 0 {

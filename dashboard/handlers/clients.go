@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
 	"github.com/debsahu/comqtt-dashboard/rest"
+	"github.com/wind-c/comqtt/v2/mqtt"
 )
 
 // ClientsDeps bundles the dependencies for the Clients page.

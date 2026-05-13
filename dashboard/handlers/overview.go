@@ -9,8 +9,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
+	"github.com/wind-c/comqtt/v2/mqtt"
 )
 
 var osHostname = os.Hostname

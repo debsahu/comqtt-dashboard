@@ -16,9 +16,9 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/debsahu/comqtt-dashboard/dashboard/handlers"
 	"github.com/debsahu/comqtt-dashboard/dashboard/sse"
+	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/wind-c/comqtt/v2/mqtt/packets"
 )
 

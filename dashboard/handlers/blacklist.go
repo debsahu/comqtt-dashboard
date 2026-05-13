@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
+	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/wind-c/comqtt/v2/mqtt/packets"
 )
 

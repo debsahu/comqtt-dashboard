@@ -11,12 +11,12 @@ import (
 	"path/filepath"
 	"time"
 
-	redis "github.com/redis/go-redis/v9"
-	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
 	"github.com/debsahu/comqtt-dashboard/dashboard/handlers"
 	"github.com/debsahu/comqtt-dashboard/dashboard/sse"
 	"github.com/debsahu/comqtt-dashboard/rest"
+	redis "github.com/redis/go-redis/v9"
+	"github.com/wind-c/comqtt/v2/mqtt"
 )
 
 // Options bundles wiring choices for the dashboard.
@@ -182,39 +182,39 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 
 	routes := map[string]rest.Handler{
 		// Public.
-		"GET /{$}":              rootRedirect,
-		"GET /dashboard/login":  handlers.LoginGet(accountDeps),
-		"POST /dashboard/login": handlers.LoginPost(accountDeps),
+		"GET /{$}":               rootRedirect,
+		"GET /dashboard/login":   handlers.LoginGet(accountDeps),
+		"POST /dashboard/login":  handlers.LoginPost(accountDeps),
 		"POST /dashboard/logout": handlers.LogoutPost(),
 		"GET /dashboard/static/": staticHandler.ServeHTTP,
 
 		// Authenticated pages.
-		"GET /dashboard/{$}":                       wrap(handlers.OverviewGet(overviewDeps)),
-		"GET /dashboard/fragments/overview-cards":  wrap(handlers.OverviewCards(overviewDeps)),
-		"GET /dashboard/clients":                   wrap(handlers.ClientsList(clientsDeps)),
-		"GET /dashboard/clients/{id}":              wrap(handlers.ClientDetail(clientDetailDeps)),
+		"GET /dashboard/{$}":                                        wrap(handlers.OverviewGet(overviewDeps)),
+		"GET /dashboard/fragments/overview-cards":                   wrap(handlers.OverviewCards(overviewDeps)),
+		"GET /dashboard/clients":                                    wrap(handlers.ClientsList(clientsDeps)),
+		"GET /dashboard/clients/{id}":                               wrap(handlers.ClientDetail(clientDetailDeps)),
 		"POST /dashboard/clients/{id}/subscriptions/{topic}/delete": wrapAdmin(handlers.ClientUnsubscribe(clientDetailDeps)),
-		"GET /dashboard/subscriptions":             wrap(handlers.SubscriptionsList(subscriptionsDeps)),
-		"GET /dashboard/topics":                    wrap(handlers.TopicsTree(topicsDeps)),
-		"GET /dashboard/retained":                  wrap(handlers.RetainedList(retainedDeps)),
-		"POST /dashboard/retained/{topic}/delete":  wrapAdmin(handlers.RetainedClear(retainedDeps)),
-		"GET /dashboard/sessions":                  wrap(handlers.SessionsList(sessionsDeps)),
-		"POST /dashboard/sessions/{id}/delete":     wrapAdmin(handlers.SessionsClear(sessionsDeps)),
-		"GET /dashboard/blacklist":                 wrap(handlers.BlacklistGet(blacklistDeps)),
-		"POST /dashboard/blacklist":                wrapAdmin(handlers.BlacklistAdd(blacklistDeps)),
-		"POST /dashboard/blacklist/{id}/delete":    wrapAdmin(handlers.BlacklistRemove(blacklistDeps)),
-		"GET /dashboard/tools":                     wrap(handlers.ToolsGet(toolsDeps)),
-		"POST /dashboard/tools/publish":            wrapAdmin(handlers.ToolsPublish(toolsDeps)),
-		"GET /dashboard/settings":                  wrap(handlers.Settings(settingsDeps)),
-		"GET /dashboard/account":                   wrap(handlers.AccountGet(accountDeps)),
-		"GET /dashboard/account/password":          wrap(handlers.ChangePasswordGet(accountDeps)),
-		"POST /dashboard/account/password":         wrap(handlers.ChangePasswordPost(accountDeps)),
+		"GET /dashboard/subscriptions":                              wrap(handlers.SubscriptionsList(subscriptionsDeps)),
+		"GET /dashboard/topics":                                     wrap(handlers.TopicsTree(topicsDeps)),
+		"GET /dashboard/retained":                                   wrap(handlers.RetainedList(retainedDeps)),
+		"POST /dashboard/retained/{topic}/delete":                   wrapAdmin(handlers.RetainedClear(retainedDeps)),
+		"GET /dashboard/sessions":                                   wrap(handlers.SessionsList(sessionsDeps)),
+		"POST /dashboard/sessions/{id}/delete":                      wrapAdmin(handlers.SessionsClear(sessionsDeps)),
+		"GET /dashboard/blacklist":                                  wrap(handlers.BlacklistGet(blacklistDeps)),
+		"POST /dashboard/blacklist":                                 wrapAdmin(handlers.BlacklistAdd(blacklistDeps)),
+		"POST /dashboard/blacklist/{id}/delete":                     wrapAdmin(handlers.BlacklistRemove(blacklistDeps)),
+		"GET /dashboard/tools":                                      wrap(handlers.ToolsGet(toolsDeps)),
+		"POST /dashboard/tools/publish":                             wrapAdmin(handlers.ToolsPublish(toolsDeps)),
+		"GET /dashboard/settings":                                   wrap(handlers.Settings(settingsDeps)),
+		"GET /dashboard/account":                                    wrap(handlers.AccountGet(accountDeps)),
+		"GET /dashboard/account/password":                           wrap(handlers.ChangePasswordGet(accountDeps)),
+		"POST /dashboard/account/password":                          wrap(handlers.ChangePasswordPost(accountDeps)),
 
 		// Admin-only pages.
-		"GET /dashboard/users":                     wrapAdmin(handlers.UsersList(usersDeps)),
-		"POST /dashboard/users":                    wrapAdmin(handlers.UsersCreate(usersDeps)),
-		"POST /dashboard/users/{username}/delete":  wrapAdmin(handlers.UsersDelete(usersDeps)),
-		"POST /dashboard/users/{username}/role":    wrapAdmin(handlers.UsersToggleRole(usersDeps)),
+		"GET /dashboard/users":                    wrapAdmin(handlers.UsersList(usersDeps)),
+		"POST /dashboard/users":                   wrapAdmin(handlers.UsersCreate(usersDeps)),
+		"POST /dashboard/users/{username}/delete": wrapAdmin(handlers.UsersDelete(usersDeps)),
+		"POST /dashboard/users/{username}/role":   wrapAdmin(handlers.UsersToggleRole(usersDeps)),
 
 		// SSE.
 		"GET /dashboard/events": wrap(handlers.Events(hub)),

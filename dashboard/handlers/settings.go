@@ -12,8 +12,8 @@ import (
 	"github.com/alecthomas/chroma/v2/styles"
 	"gopkg.in/yaml.v3"
 
-	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
+	"github.com/wind-c/comqtt/v2/mqtt"
 )
 
 // SettingsDeps bundles dependencies for the Settings page.

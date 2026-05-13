@@ -10,8 +10,8 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
+	"github.com/wind-c/comqtt/v2/mqtt"
 )
 
 func newToolsRenderer(t *testing.T) *Renderer {

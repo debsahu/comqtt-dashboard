@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/wind-c/comqtt/v2/mqtt"
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
-	"github.com/wind-c/comqtt/v2/mqtt/packets"
 	"github.com/debsahu/comqtt-dashboard/rest"
+	"github.com/wind-c/comqtt/v2/mqtt"
+	"github.com/wind-c/comqtt/v2/mqtt/packets"
 )
 
 type SessionsDeps struct {

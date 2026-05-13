@@ -16,9 +16,10 @@ import (
 // nodes read/write the same hash so password/role changes propagate.
 //
 // Layout:
-//   key   = "<KeyPrefix>:users"  (default "comqtt:dashboard:users")
-//   field = username
-//   value = JSON-marshaled User struct
+//
+//	key   = "<KeyPrefix>:users"  (default "comqtt:dashboard:users")
+//	field = username
+//	value = JSON-marshaled User struct
 type RedisStore struct {
 	Client    *redis.Client
 	KeyPrefix string

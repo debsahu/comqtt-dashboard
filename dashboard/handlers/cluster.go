@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/wind-c/comqtt/v2/cluster/discovery"
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
+	"github.com/wind-c/comqtt/v2/cluster/discovery"
 )
 
 // ClusterAgent is the small surface from *cluster.Agent that the cluster
