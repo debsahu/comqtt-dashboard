@@ -44,6 +44,7 @@ coexist; pick the one whose surface matches your operations need.
 - `v0.1.0` — single-mode dashboard.
 - `v0.2.0` / `v0.2.1` — cluster-mode add-on (StatefulSet, Helm chart, image, CI).
 - `v0.3.0` — Authentication + Authorization pages, four auth backends.
+- `v0.3.1` — fix file-backend auth hook installation; document its restart requirement.
 
 ## How to run
 
@@ -62,6 +63,13 @@ auth as you normally would (e.g. `--auth-way=1 --auth-ds=0
 --auth-path=/data/ledger.yml` for the built-in file ledger). The dashboard
 reads `cfg.Auth.*` at startup and selects the matching backend; with
 `--auth-way=0` (anonymous) the pages render a "not configured" notice.
+
+> **Note on the file backend:** upstream comqtt's file-ledger auth hook
+> reads the YAML at startup and holds it in memory. Changes made through
+> the dashboard write to disk but only take effect after the broker
+> restarts. For live reload, use the redis, mysql, or postgresql
+> backends. v0.4.0 removes this limitation by shipping a replacement
+> auth hook that reads from the file backend on every check.
 
 ## Configuration
 
