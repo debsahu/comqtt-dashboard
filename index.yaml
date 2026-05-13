@@ -3,6 +3,41 @@ entries:
   comqtt-dashboard:
   - annotations:
       artifacthub.io/changes: |
+        - kind: added
+          description: Authentication page (/dashboard/mqtt-auth) for managing broker user credentials across file, redis, mysql, and postgres backends.
+        - kind: added
+          description: Authorization page (/dashboard/mqtt-acl) for managing per-user ACL rules.
+      artifacthub.io/license: MIT
+    apiVersion: v2
+    appVersion: 0.3.0
+    created: "2026-05-13T05:58:19.86941728Z"
+    description: 'Web dashboard add-on for comqtt, the lightweight Go MQTT broker.
+      Ships the broker plus the dashboard as a single image and supports both single-mode
+      (Deployment) and cluster-mode (StatefulSet with Raft + Gossip + Redis). '
+    digest: 29099443b6d94ef044695d6bdb768be01e177d7feb865c25316caf527ba1647c
+    home: https://github.com/debsahu/comqtt-dashboard
+    keywords:
+    - mqtt
+    - broker
+    - iot
+    - messaging
+    - pub-sub
+    - cluster
+    - raft
+    - dashboard
+    kubeVersion: '>=1.23.0-0'
+    maintainers:
+    - name: Debashish Sahu
+      url: https://github.com/debsahu
+    name: comqtt-dashboard
+    sources:
+    - https://github.com/debsahu/comqtt-dashboard
+    type: application
+    urls:
+    - https://github.com/debsahu/comqtt-dashboard/releases/download/comqtt-dashboard-0.2.0/comqtt-dashboard-0.2.0.tgz
+    version: 0.2.0
+  - annotations:
+      artifacthub.io/changes: |
         - kind: changed
           description: appVersion bumped to 0.2.1 (soft-fork dropped; pulls in stock comqtt v2.6.3 with Server.Hooks() and Agent.Leader() accessors).
       artifacthub.io/license: MIT
@@ -69,4 +104,4 @@ entries:
     urls:
     - https://github.com/debsahu/comqtt-dashboard/releases/download/comqtt-dashboard-0.1.0/comqtt-dashboard-0.1.0.tgz
     version: 0.1.0
-generated: "2026-05-13T04:43:54.624563704Z"
+generated: "2026-05-13T05:58:19.869450371Z"
