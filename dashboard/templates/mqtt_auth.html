@@ -19,6 +19,12 @@
   {{with .Flash}}<div class="rounded bg-success/10 text-success border border-success/20 p-2 text-sm">{{.}}</div>{{end}}
   {{with .Error}}<div class="rounded bg-destructive/10 text-destructive border border-destructive/20 p-2 text-sm">{{.}}</div>{{end}}
 
+  {{if and .Configured (eq .BackendKind "file")}}
+  <div class="rounded bg-warning/10 text-warning border border-warning/20 p-3 text-sm">
+    <strong class="font-medium">File backend:</strong> changes to users below take effect after the broker restarts. For live reload, configure a redis, mysql, or postgresql backend. This limitation goes away in v0.4.0.
+  </div>
+  {{end}}
+
   {{if not .Configured}}
   <div class="bg-card text-card-foreground rounded shadow-sm border border-border p-6 text-sm text-muted-foreground">
     The broker is running with anonymous authentication. To manage MQTT users, configure an auth backend (file, redis, mysql, or postgresql) in the broker config and restart.
