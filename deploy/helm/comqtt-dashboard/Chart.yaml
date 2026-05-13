@@ -5,8 +5,8 @@ description: |
   broker plus the dashboard as a single image and supports both single-mode
   (Deployment) and cluster-mode (StatefulSet with Raft + Gossip + Redis).
 type: application
-version: 0.1.0
-appVersion: "0.2.0"
+version: 0.1.1
+appVersion: "0.2.1"
 kubeVersion: ">=1.23.0-0"
 home: https://github.com/debsahu/comqtt-dashboard
 sources:
@@ -25,8 +25,6 @@ maintainers:
     url: https://github.com/debsahu
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: Initial chart release for the comqtt-dashboard add-on.
-    - kind: added
-      description: Gateway API support (HTTPRoute + TCPRoute) alongside Ingress.
+    - kind: changed
+      description: appVersion bumped to 0.2.1 (soft-fork dropped; pulls in stock comqtt v2.6.3 with Server.Hooks() and Agent.Leader() accessors).
   artifacthub.io/license: MIT

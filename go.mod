@@ -2,17 +2,11 @@ module github.com/debsahu/comqtt-dashboard
 
 go 1.24
 
-// Soft-fork: bundles the upstream accessors v0.2.0 needs ahead of a
-// wind-c/comqtt release. See TODO.upstream.md for the full list. The fork
-// branch is debsahu/comqtt feat/v0.2-accessor-bundle (built on top of #158).
-// Drop this replace once upstream releases include all bundled accessors.
-replace github.com/wind-c/comqtt/v2 => github.com/debsahu/comqtt/v2 v2.6.1-dashboard.1
-
 require (
 	github.com/alecthomas/chroma/v2 v2.24.1
 	github.com/alicebob/miniredis/v2 v2.34.0
 	github.com/redis/go-redis/v9 v9.9.0
-	github.com/wind-c/comqtt/v2 v2.6.0
+	github.com/wind-c/comqtt/v2 v2.6.3
 	go.etcd.io/bbolt v1.4.0
 	golang.org/x/crypto v0.41.0
 	gopkg.in/yaml.v3 v3.0.1
