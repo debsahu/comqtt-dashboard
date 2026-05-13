@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/chroma/v2 v2.24.1
 	github.com/alicebob/miniredis/v2 v2.34.0
 	github.com/redis/go-redis/v9 v9.9.0
-	github.com/wind-c/comqtt/v2 v2.6.3
+	github.com/wind-c/comqtt/v2 v2.6.4
 	go.etcd.io/bbolt v1.4.0
 	golang.org/x/crypto v0.41.0
 	gopkg.in/yaml.v3 v3.0.1
