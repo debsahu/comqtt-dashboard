@@ -14,6 +14,7 @@ import (
 	"github.com/debsahu/comqtt-dashboard/dashboard/auth"
 	"github.com/debsahu/comqtt-dashboard/dashboard/handlers"
 	"github.com/debsahu/comqtt-dashboard/dashboard/sse"
+	"github.com/debsahu/comqtt-dashboard/mqttauth"
 	"github.com/debsahu/comqtt-dashboard/rest"
 	redis "github.com/redis/go-redis/v9"
 	"github.com/wind-c/comqtt/v2/mqtt"
@@ -73,6 +74,12 @@ type Options struct {
 	// HMAC secret are read from redis (not the file paths), and a pub/sub
 	// bridge fans events between cluster nodes. nil in single-mode.
 	Redis *redis.Client
+
+	// MQTTAuth is the backend the Authentication and Authorization pages
+	// use to CRUD MQTT-level users and ACL rules. Nil when the broker is
+	// configured with anonymous or HTTP-delegated auth - the pages then
+	// render a "not configured" notice.
+	MQTTAuth mqttauth.Backend
 }
 
 // Routes returns the full set of HTTP routes for the dashboard, ready to be
@@ -163,6 +170,7 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 	toolsDeps := handlers.ToolsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
 	settingsDeps := handlers.SettingsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
 	usersDeps := handlers.UsersDeps{Store: store, Renderer: rdr, Cluster: opts.Cluster}
+	mqttAuthDeps := handlers.MQTTAuthDeps{Backend: opts.MQTTAuth, Renderer: rdr, Cluster: opts.Cluster}
 
 	// Auth wrappers.
 	requireAuth := auth.RequireAuth(opts.Secret, store, opts.PasswordExpiryDays)
@@ -215,6 +223,12 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 		"POST /dashboard/users":                   wrapAdmin(handlers.UsersCreate(usersDeps)),
 		"POST /dashboard/users/{username}/delete": wrapAdmin(handlers.UsersDelete(usersDeps)),
 		"POST /dashboard/users/{username}/role":   wrapAdmin(handlers.UsersToggleRole(usersDeps)),
+
+		// Admin-only: MQTT auth (broker user credentials) CRUD.
+		"GET /dashboard/mqtt-auth":                   wrapAdmin(handlers.MQTTAuthList(mqttAuthDeps)),
+		"POST /dashboard/mqtt-auth":                  wrapAdmin(handlers.MQTTAuthCreate(mqttAuthDeps)),
+		"POST /dashboard/mqtt-auth/{subject}/toggle": wrapAdmin(handlers.MQTTAuthToggle(mqttAuthDeps)),
+		"POST /dashboard/mqtt-auth/{subject}/delete": wrapAdmin(handlers.MQTTAuthDelete(mqttAuthDeps)),
 
 		// SSE.
 		"GET /dashboard/events": wrap(handlers.Events(hub)),

@@ -28,6 +28,8 @@
     <li><a href="/dashboard/tools" class="nav-link block px-3 py-2 rounded hover:bg-accent">Tools</a></li>
     {{if eq .User.Role "admin"}}
     <li><a href="/dashboard/users" class="nav-link block px-3 py-2 rounded hover:bg-accent">Users</a></li>
+    <li><a href="/dashboard/mqtt-auth" class="nav-link block px-3 py-2 rounded hover:bg-accent">Authentication</a></li>
+    <li><a href="/dashboard/mqtt-acl" class="nav-link block px-3 py-2 rounded hover:bg-accent">Authorization</a></li>
     {{end}}
     <li><a href="/dashboard/settings" class="nav-link block px-3 py-2 rounded hover:bg-accent">Settings</a></li>
     <li><a href="/dashboard/account" class="nav-link block px-3 py-2 rounded hover:bg-accent text-muted-foreground">Account</a></li>

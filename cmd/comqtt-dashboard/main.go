@@ -37,6 +37,7 @@ import (
 	"go.etcd.io/bbolt"
 
 	"github.com/debsahu/comqtt-dashboard/dashboard"
+	"github.com/debsahu/comqtt-dashboard/mqttauth"
 	addonrest "github.com/debsahu/comqtt-dashboard/rest"
 )
 
@@ -139,6 +140,23 @@ func realMain(ctx context.Context) error {
 		handlers[path] = h
 	}
 
+	// Build the MQTT auth-management backend (file/redis/mysql/postgres)
+	// from the same auth config the broker plugin is reading. nil when
+	// broker auth is anonymous or HTTP-delegated; the dashboard's Auth and
+	// ACL pages render a "not configured" notice in that case.
+	mqttAuthCfg, err := mqttauth.FromComqttConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("mqtt auth config: %w", err)
+	}
+	var mqttAuthBackend mqttauth.Backend
+	if mqttAuthCfg != nil {
+		mqttAuthBackend, err = mqttauth.New(*mqttAuthCfg)
+		if err != nil {
+			return fmt.Errorf("mqtt auth backend: %w", err)
+		}
+		defer mqttAuthBackend.Close()
+	}
+
 	dashCleanup := func() {}
 	if dashCfg.Enabled {
 		dashRoutes, cleanup, err := dashboard.Routes(dashboard.Options{
@@ -146,6 +164,7 @@ func realMain(ctx context.Context) error {
 			Cluster:            false,
 			Secret:             dashCfg.decodeSecret(),
 			PasswordExpiryDays: dashCfg.PasswordExpiryDays,
+			MQTTAuth:           mqttAuthBackend,
 		})
 		if err != nil {
 			return fmt.Errorf("dashboard routes: %w", err)
