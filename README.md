@@ -41,10 +41,10 @@ coexist; pick the one whose surface matches your operations need.
 
 ## Status
 
-- `v0.1.0` — single-mode dashboard.
-- `v0.2.0` / `v0.2.1` — cluster-mode add-on (StatefulSet, Helm chart, image, CI).
-- `v0.3.0` — Authentication + Authorization pages, four auth backends.
-- `v0.3.1` — fix file-backend auth hook installation; document its restart requirement.
+- `v0.1.0` - single-mode dashboard.
+- `v0.2.0` / `v0.2.1` - cluster-mode add-on (StatefulSet, Helm chart, image, CI).
+- `v0.3.0` - Authentication + Authorization pages, four auth backends.
+- `v0.3.1` - fix file-backend auth hook installation; document its restart requirement.
 
 ## How to run
 
