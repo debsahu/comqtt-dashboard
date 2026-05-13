@@ -209,6 +209,12 @@ func initAuth(server *mqtt.Server, conf *config.Config) error {
 		return config.ErrAuthWay
 	}
 	switch conf.Auth.Datasource {
+	case config.AuthDSFree:
+		data, err := os.ReadFile(conf.Auth.ConfPath)
+		if err != nil {
+			return fmt.Errorf("%s: %w", logMsg, err)
+		}
+		return server.AddHook(new(auth.Hook), &auth.Options{Data: data})
 	case config.AuthDSRedis:
 		opts := rauth.Options{}
 		if err := plugin.LoadYaml(conf.Auth.ConfPath, &opts); err != nil {
