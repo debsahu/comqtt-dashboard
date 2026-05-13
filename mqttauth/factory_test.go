@@ -24,12 +24,20 @@ func TestNewRoutesByKind(t *testing.T) {
 		},
 		{
 			name: "mysql",
-			cfg:  Config{Kind: "mysql", SQL: &SQLConfig{Driver: "mysql", DSN: "u@/db"}},
+			cfg: Config{Kind: "mysql", SQL: &SQLConfig{
+				Driver: "mysql", DSN: "u@/db",
+				Auth: AuthTable{Table: "auth", UserColumn: "username", PasswordColumn: "password", AllowColumn: "allow"},
+				ACL:  ACLTable{Table: "acl", UserColumn: "username", TopicColumn: "topic", AccessColumn: "access"},
+			}},
 			want: "mysql",
 		},
 		{
 			name: "postgres",
-			cfg:  Config{Kind: "postgres", SQL: &SQLConfig{Driver: "postgres", DSN: "postgres://u@/db"}},
+			cfg: Config{Kind: "postgres", SQL: &SQLConfig{
+				Driver: "postgres", DSN: "postgres://u@/db",
+				Auth: AuthTable{Table: "auth", UserColumn: "username", PasswordColumn: "password", AllowColumn: "allow"},
+				ACL:  ACLTable{Table: "acl", UserColumn: "username", TopicColumn: "topic", AccessColumn: "access"},
+			}},
 			want: "postgres",
 		},
 	}
@@ -58,7 +66,20 @@ func TestNewRejectsMissingSubConfig(t *testing.T) {
 		{"file missing", Config{Kind: "file"}, "Config.File"},
 		{"redis missing", Config{Kind: "redis"}, "Config.Redis"},
 		{"mysql missing", Config{Kind: "mysql"}, "Config.SQL"},
-		{"postgres wrong driver", Config{Kind: "postgres", SQL: &SQLConfig{Driver: "mysql"}}, "Driver=postgres"},
+		{"postgres wrong driver", Config{
+			Kind: "postgres",
+			SQL: &SQLConfig{Driver: "mysql",
+				Auth: AuthTable{Table: "auth", UserColumn: "username", PasswordColumn: "password", AllowColumn: "allow"},
+				ACL:  ACLTable{Table: "acl", UserColumn: "username", TopicColumn: "topic", AccessColumn: "access"},
+			},
+		}, "Driver=postgres"},
+		{"sql injection in column name", Config{
+			Kind: "mysql",
+			SQL: &SQLConfig{Driver: "mysql",
+				Auth: AuthTable{Table: "auth; DROP TABLE auth;", UserColumn: "u", PasswordColumn: "p", AllowColumn: "a"},
+				ACL:  ACLTable{Table: "acl", UserColumn: "u", TopicColumn: "t", AccessColumn: "a"},
+			},
+		}, "invalid auth.table identifier"},
 		{"unknown kind", Config{Kind: "ldap"}, "unknown Kind"},
 	}
 	for _, tc := range cases {
