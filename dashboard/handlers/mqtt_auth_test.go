@@ -21,13 +21,23 @@ type fakeMQTTBackend struct {
 	users     map[string]mqttauth.User
 	lastPut   mqttauth.User
 	lastPlain string
+	kind      string
 }
 
 func newFakeMQTT() *fakeMQTTBackend {
-	return &fakeMQTTBackend{users: map[string]mqttauth.User{}}
+	return &fakeMQTTBackend{users: map[string]mqttauth.User{}, kind: "fake"}
 }
 
-func (f *fakeMQTTBackend) Kind() string                { return "fake" }
+// newFakeMQTTWithKind returns a fakeMQTTBackend whose Kind() reports the
+// given string. Used by banner-rendering tests that care about the
+// BackendKind field set in mqttAuthPageData.
+func newFakeMQTTWithKind(kind string) *fakeMQTTBackend {
+	be := newFakeMQTT()
+	be.kind = kind
+	return be
+}
+
+func (f *fakeMQTTBackend) Kind() string                { return f.kind }
 func (f *fakeMQTTBackend) Mode() mqttauth.AuthMode     { return mqttauth.ModeUsername }
 func (f *fakeMQTTBackend) HashType() mqttauth.HashType { return mqttauth.HashBcrypt }
 func (f *fakeMQTTBackend) Close() error                { return nil }
@@ -86,7 +96,7 @@ func newAuthRenderer(t *testing.T) *Renderer {
 		"templates/_layout.html":   &fstest.MapFile{Data: []byte(`{{define "layout"}}<html><body>{{template "nav" .}}{{template "content" .}}</body></html>{{end}}`)},
 		"templates/_nav.html":      &fstest.MapFile{Data: []byte(`{{define "nav"}}<nav></nav>{{end}}`)},
 		"templates/_flash.html":    &fstest.MapFile{Data: []byte(`{{define "flash"}}{{end}}`)},
-		"templates/mqtt_auth.html": &fstest.MapFile{Data: []byte(`{{define "mqtt_auth"}}{{template "layout" .}}{{end}}{{define "content"}}KIND={{.BackendKind}} ITEMS={{len .Items}}{{range .Items}}|{{.Subject}}:{{.Allow}}{{end}}{{end}}`)},
+		"templates/mqtt_auth.html": &fstest.MapFile{Data: []byte(`{{define "mqtt_auth"}}{{template "layout" .}}{{end}}{{define "content"}}KIND={{.BackendKind}}{{if eq .BackendKind "file"}}|BANNER:file-restart{{end}} ITEMS={{len .Items}}{{range .Items}}|{{.Subject}}:{{.Allow}}{{end}}{{end}}`)},
 	}
 	return NewRenderer(fs)
 }
@@ -198,5 +208,39 @@ func TestMQTTAuthDelete_RemovesUser(t *testing.T) {
 	}
 	if _, err := be.GetUser(context.Background(), "alice"); err == nil {
 		t.Errorf("user should have been deleted")
+	}
+}
+
+func TestMQTTAuthList_FileBackendShowsBanner(t *testing.T) {
+	be := newFakeMQTTWithKind("file")
+
+	d := MQTTAuthDeps{Backend: be, Renderer: newAuthRenderer(t)}
+	req := adminCtx(httptest.NewRequest("GET", "/dashboard/mqtt-auth", nil))
+	w := httptest.NewRecorder()
+	MQTTAuthList(d)(w, req)
+
+	if w.Code != 200 {
+		t.Fatalf("status=%d body=%s", w.Code, w.Body.String())
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "BANNER:file-restart") {
+		t.Errorf("file backend should render restart banner; body=%s", body)
+	}
+}
+
+func TestMQTTAuthList_NonFileBackendOmitsBanner(t *testing.T) {
+	be := newFakeMQTTWithKind("redis")
+
+	d := MQTTAuthDeps{Backend: be, Renderer: newAuthRenderer(t)}
+	req := adminCtx(httptest.NewRequest("GET", "/dashboard/mqtt-auth", nil))
+	w := httptest.NewRecorder()
+	MQTTAuthList(d)(w, req)
+
+	if w.Code != 200 {
+		t.Fatalf("status=%d body=%s", w.Code, w.Body.String())
+	}
+	body := w.Body.String()
+	if strings.Contains(body, "BANNER:file-restart") {
+		t.Errorf("non-file backend should not render restart banner; body=%s", body)
 	}
 }
