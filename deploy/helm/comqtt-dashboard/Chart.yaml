@@ -5,8 +5,8 @@ description: |
   broker plus the dashboard as a single image and supports both single-mode
   (Deployment) and cluster-mode (StatefulSet with Raft + Gossip + Redis).
 type: application
-version: 0.2.0
-appVersion: "0.3.0"
+version: 0.2.1
+appVersion: "0.3.1"
 kubeVersion: ">=1.23.0-0"
 home: https://github.com/debsahu/comqtt-dashboard
 sources:
@@ -25,8 +25,8 @@ maintainers:
     url: https://github.com/debsahu
 annotations:
   artifacthub.io/changes: |
+    - kind: fixed
+      description: initAuth now installs the upstream auth.Hook for the file backend (auth-ds=0). Pre-fix, --auth-way=1 --auth-ds=0 left no hook registered and the broker default-denied all connections.
     - kind: added
-      description: Authentication page (/dashboard/mqtt-auth) for managing broker user credentials across file, redis, mysql, and postgres backends.
-    - kind: added
-      description: Authorization page (/dashboard/mqtt-acl) for managing per-user ACL rules.
+      description: Authentication page banner noting the file backend's broker-restart requirement for ledger reloads.
   artifacthub.io/license: MIT
