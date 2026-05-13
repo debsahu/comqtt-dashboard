@@ -3,6 +3,41 @@ entries:
   comqtt-dashboard:
   - annotations:
       artifacthub.io/changes: |
+        - kind: fixed
+          description: initAuth now installs the upstream auth.Hook for the file backend (auth-ds=0). Pre-fix, --auth-way=1 --auth-ds=0 left no hook registered and the broker default-denied all connections.
+        - kind: added
+          description: Authentication page banner noting the file backend's broker-restart requirement for ledger reloads.
+      artifacthub.io/license: MIT
+    apiVersion: v2
+    appVersion: 0.3.1
+    created: "2026-05-13T16:35:56.124754912Z"
+    description: 'Web dashboard add-on for comqtt, the lightweight Go MQTT broker.
+      Ships the broker plus the dashboard as a single image and supports both single-mode
+      (Deployment) and cluster-mode (StatefulSet with Raft + Gossip + Redis). '
+    digest: 2fa96c4fdd66b22493f4e677a2527efef148ce08779fe3745b80096be85bdb8b
+    home: https://github.com/debsahu/comqtt-dashboard
+    keywords:
+    - mqtt
+    - broker
+    - iot
+    - messaging
+    - pub-sub
+    - cluster
+    - raft
+    - dashboard
+    kubeVersion: '>=1.23.0-0'
+    maintainers:
+    - name: Debashish Sahu
+      url: https://github.com/debsahu
+    name: comqtt-dashboard
+    sources:
+    - https://github.com/debsahu/comqtt-dashboard
+    type: application
+    urls:
+    - https://github.com/debsahu/comqtt-dashboard/releases/download/comqtt-dashboard-0.2.1/comqtt-dashboard-0.2.1.tgz
+    version: 0.2.1
+  - annotations:
+      artifacthub.io/changes: |
         - kind: added
           description: Authentication page (/dashboard/mqtt-auth) for managing broker user credentials across file, redis, mysql, and postgres backends.
         - kind: added
@@ -104,4 +139,4 @@ entries:
     urls:
     - https://github.com/debsahu/comqtt-dashboard/releases/download/comqtt-dashboard-0.1.0/comqtt-dashboard-0.1.0.tgz
     version: 0.1.0
-generated: "2026-05-13T05:58:19.869450371Z"
+generated: "2026-05-13T16:35:56.124769254Z"
