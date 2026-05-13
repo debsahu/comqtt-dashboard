@@ -1,0 +1,98 @@
+{{define "mqtt_acl"}}{{template "layout" .}}{{end}}
+
+{{define "content"}}
+<div class="space-y-4">
+  <div class="flex items-end justify-between">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight">Authorization</h1>
+      <p class="text-sm text-muted-foreground mt-1">MQTT ACL rules. Changes apply immediately on next broker OnACLCheck lookup.</p>
+    </div>
+    {{if .Configured}}
+    <div class="text-right text-xs text-muted-foreground space-y-0.5">
+      <div>Backend: <span class="inline-flex items-center rounded bg-accent text-foreground dark:text-primary-foreground px-2 py-0.5 font-medium">{{.BackendKind}}</span></div>
+      <div>Lookup by: <span class="font-mono text-foreground">{{.ACLMode}}</span></div>
+    </div>
+    {{end}}
+  </div>
+
+  {{with .Flash}}<div class="rounded bg-success/10 text-success border border-success/20 p-2 text-sm">{{.}}</div>{{end}}
+  {{with .Error}}<div class="rounded bg-destructive/10 text-destructive border border-destructive/20 p-2 text-sm">{{.}}</div>{{end}}
+
+  {{if not .Configured}}
+  <div class="bg-card text-card-foreground rounded shadow-sm border border-border p-6 text-sm text-muted-foreground">
+    The broker is running with anonymous authentication. To manage ACL rules, configure an auth backend in the broker config and restart.
+  </div>
+  {{else}}
+  <form method="GET" action="/dashboard/mqtt-acl" class="flex gap-2 items-end">
+    <label class="block flex-1">
+      <span class="text-xs text-muted-foreground">Filter by {{if eq .ACLMode "clientid"}}Client ID{{else}}Username{{end}}</span>
+      <input name="subject" value="{{.SubjectFilter}}" placeholder="(all)"
+        class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm" />
+    </label>
+    <button class="px-3 py-2 rounded border border-input text-sm">Filter</button>
+    {{if .SubjectFilter}}<a href="/dashboard/mqtt-acl" class="px-3 py-2 rounded border border-input text-sm text-muted-foreground">Clear</a>{{end}}
+  </form>
+
+  <form method="POST" action="/dashboard/mqtt-acl" class="bg-card text-card-foreground rounded shadow-sm border border-border p-4 grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+    <input type="hidden" name="_csrf" value="{{.CSRF}}" />
+    <label class="block">
+      <span class="text-xs text-muted-foreground">{{if eq .ACLMode "clientid"}}Client ID{{else}}Username{{end}}</span>
+      <input name="subject" required autocomplete="off" value="{{.SubjectFilter}}"
+        class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm" />
+    </label>
+    <label class="block">
+      <span class="text-xs text-muted-foreground">Topic filter</span>
+      <input name="topic" required autocomplete="off" placeholder="sensors/+/temp"
+        class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm font-mono" />
+    </label>
+    <label class="block">
+      <span class="text-xs text-muted-foreground">Access</span>
+      <select name="access" class="mt-1 w-full px-3 py-2 rounded border border-input text-sm">
+        <option value="0">deny</option>
+        <option value="1">subscribe (read)</option>
+        <option value="2">publish (write)</option>
+        <option value="3" selected>pubsub (read + write)</option>
+      </select>
+    </label>
+    <button class="px-4 py-2 rounded bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium">Add rule</button>
+  </form>
+
+  <div class="overflow-x-auto bg-card text-card-foreground rounded shadow-sm border border-border">
+    <table class="min-w-full text-sm">
+      <thead class="bg-muted text-muted-foreground uppercase tracking-wide">
+        <tr>
+          <th class="text-left px-4 py-2 font-medium">{{if eq .ACLMode "clientid"}}Client ID{{else}}Username{{end}}</th>
+          <th class="text-left px-4 py-2 font-medium">Topic</th>
+          <th class="text-left px-4 py-2 font-medium">Access</th>
+          <th class="text-right px-4 py-2 font-medium">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        {{range .Items}}
+        <tr class="hover:bg-muted">
+          <td class="px-4 py-2 font-mono">{{.Subject}}</td>
+          <td class="px-4 py-2 font-mono">{{.Topic}}</td>
+          <td class="px-4 py-2">
+            {{if eq .Access "deny"}}
+              <span class="inline-flex items-center rounded bg-destructive/10 text-destructive border border-destructive/20 px-2 py-0.5 text-xs">deny</span>
+            {{else}}
+              <span class="inline-flex items-center rounded bg-success/10 text-success border border-success/20 px-2 py-0.5 text-xs">{{.Access}}</span>
+            {{end}}
+          </td>
+          <td class="px-4 py-2 text-right">
+            <form method="POST" action="/dashboard/mqtt-acl/{{.ID}}/delete" class="inline"
+                  onsubmit="return confirm('Delete this rule? This cannot be undone.');">
+              <input type="hidden" name="_csrf" value="{{$.CSRF}}" />
+              <button class="text-xs text-destructive hover:underline">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-muted-foreground">No rules yet{{with $.SubjectFilter}} for "{{.}}"{{end}}.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+  {{end}}
+</div>
+{{end}}

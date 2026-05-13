@@ -171,6 +171,7 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 	settingsDeps := handlers.SettingsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
 	usersDeps := handlers.UsersDeps{Store: store, Renderer: rdr, Cluster: opts.Cluster}
 	mqttAuthDeps := handlers.MQTTAuthDeps{Backend: opts.MQTTAuth, Renderer: rdr, Cluster: opts.Cluster}
+	mqttACLDeps := handlers.MQTTACLDeps{Backend: opts.MQTTAuth, Renderer: rdr, Cluster: opts.Cluster}
 
 	// Auth wrappers.
 	requireAuth := auth.RequireAuth(opts.Secret, store, opts.PasswordExpiryDays)
@@ -229,6 +230,11 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 		"POST /dashboard/mqtt-auth":                  wrapAdmin(handlers.MQTTAuthCreate(mqttAuthDeps)),
 		"POST /dashboard/mqtt-auth/{subject}/toggle": wrapAdmin(handlers.MQTTAuthToggle(mqttAuthDeps)),
 		"POST /dashboard/mqtt-auth/{subject}/delete": wrapAdmin(handlers.MQTTAuthDelete(mqttAuthDeps)),
+
+		// Admin-only: MQTT ACL rule CRUD.
+		"GET /dashboard/mqtt-acl":              wrapAdmin(handlers.MQTTACLList(mqttACLDeps)),
+		"POST /dashboard/mqtt-acl":             wrapAdmin(handlers.MQTTACLCreate(mqttACLDeps)),
+		"POST /dashboard/mqtt-acl/{id}/delete": wrapAdmin(handlers.MQTTACLDelete(mqttACLDeps)),
 
 		// SSE.
 		"GET /dashboard/events": wrap(handlers.Events(hub)),
