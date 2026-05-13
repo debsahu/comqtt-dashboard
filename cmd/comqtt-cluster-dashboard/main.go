@@ -180,6 +180,7 @@ func realMain(ctx context.Context) error {
 			Server:             server,
 			Cluster:            true,
 			ClusterAgent:       agent,
+			Node:               cfg.Cluster.NodeName,
 			Secret:             dashCfg.decodeSecret(),
 			PasswordExpiryDays: dashCfg.PasswordExpiryDays,
 			Redis:              redisClient,

@@ -29,6 +29,14 @@ type Options struct {
 	// single-mode; required when Cluster=true to mount /dashboard/cluster.
 	ClusterAgent handlers.ClusterAgent
 
+	// Node is the identifier this instance uses when tagging SSE events
+	// (HubHook.Node, Bridge.Node) and matching cross-node echoes. In
+	// cluster mode pass cfg.Cluster.NodeName so the SSE feed and the
+	// Cluster page agree on node identity. Empty falls back to
+	// os.Hostname(), which matches the cluster agent's own fallback when
+	// NodeName is unset.
+	Node string
+
 	// Server is the broker. Required.
 	Server *mqtt.Server
 
@@ -124,13 +132,13 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 	hub := sse.NewHub(1024)
 	// Register the broker hook so connect/publish/disconnect events reach
 	// the hub. The hook id is unique per dashboard instance.
-	if err := opts.Server.AddHook(&sse.HubHook{Hub: hub, Node: hostname()}, nil); err != nil {
+	if err := opts.Server.AddHook(&sse.HubHook{Hub: hub, Node: opts.Node}, nil); err != nil {
 		return nil, nil, err
 	}
 
 	var bridge *sse.Bridge
 	if opts.Redis != nil {
-		bridge = sse.NewBridge(opts.Redis, hub, hostname())
+		bridge = sse.NewBridge(opts.Redis, hub, opts.Node)
 		bridge.Start(context.Background())
 	}
 
@@ -240,6 +248,9 @@ func hostname() string {
 }
 
 func (o *Options) applyDefaults() error {
+	if o.Node == "" {
+		o.Node = hostname()
+	}
 	if o.CredStorePath == "" {
 		o.CredStorePath = "./data/dashboard-users.json"
 	}
