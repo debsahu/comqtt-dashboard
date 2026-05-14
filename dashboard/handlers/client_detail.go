@@ -12,19 +12,21 @@ import (
 
 // ClientDetailDeps bundles dependencies for the Client detail page.
 type ClientDetailDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type clientDetailPageData struct {
-	Title    string
-	User     auth.User
-	CSRF     string
-	Cluster  bool
-	Flash    string
-	Error    string
-	Readonly bool
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Error        string
+	Readonly     bool
 
 	ClientID string
 	Online   bool
@@ -65,13 +67,14 @@ func ClientDetail(d ClientDetailDeps) http.HandlerFunc {
 
 		u := auth.UserFromContext(r.Context())
 		page := clientDetailPageData{
-			Title:    "Client " + id,
-			User:     u,
-			CSRF:     auth.NewCSRFToken(),
-			Cluster:  d.Cluster,
-			Readonly: u.Role != auth.RoleAdmin,
-			ClientID: id,
-			Tab:      tab,
+			Title:        "Client " + id,
+			User:         u,
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Readonly:     u.Role != auth.RoleAdmin,
+			ClientID:     id,
+			Tab:          tab,
 		}
 
 		cl, online := d.Server.Clients.Get(id)

@@ -11,9 +11,10 @@ import (
 )
 
 type TopicsDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type topicTreeNode struct {
@@ -27,6 +28,7 @@ type topicsPageData struct {
 	User          auth.User
 	CSRF          string
 	Cluster       bool
+	RegexEnabled  bool
 	Flash         string
 	Root          *topicTreeNode
 	UniqueFilters int
@@ -48,6 +50,7 @@ func TopicsTree(d TopicsDeps) http.HandlerFunc {
 			User:          auth.UserFromContext(r.Context()),
 			CSRF:          auth.NewCSRFToken(),
 			Cluster:       d.Cluster,
+			RegexEnabled:  d.RegexEnabled,
 			Root:          root,
 			UniqueFilters: len(seen),
 		})

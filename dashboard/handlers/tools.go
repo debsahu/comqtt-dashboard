@@ -12,9 +12,10 @@ import (
 
 // ToolsDeps bundles dependencies for the Tools page.
 type ToolsDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type publishForm struct {
@@ -25,14 +26,15 @@ type publishForm struct {
 }
 
 type toolsPageData struct {
-	Title    string
-	User     auth.User
-	CSRF     string
-	Cluster  bool
-	Flash    string
-	Error    string
-	Form     publishForm
-	Readonly bool
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Error        string
+	Form         publishForm
+	Readonly     bool
 }
 
 // ToolsGet renders the publish-a-message form.
@@ -40,12 +42,13 @@ func ToolsGet(d ToolsDeps) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		u := auth.UserFromContext(r.Context())
 		d.Renderer.Render(w, "tools", toolsPageData{
-			Title:    "Tools",
-			User:     u,
-			CSRF:     auth.NewCSRFToken(),
-			Cluster:  d.Cluster,
-			Form:     publishForm{},
-			Readonly: u.Role != auth.RoleAdmin,
+			Title:        "Tools",
+			User:         u,
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Form:         publishForm{},
+			Readonly:     u.Role != auth.RoleAdmin,
 		})
 	}
 }
@@ -80,13 +83,14 @@ func ToolsPublish(d ToolsDeps) http.HandlerFunc {
 			return
 		}
 		d.Renderer.Render(w, "tools", toolsPageData{
-			Title:    "Tools",
-			User:     u,
-			CSRF:     auth.NewCSRFToken(),
-			Cluster:  d.Cluster,
-			Flash:    "Published to " + form.Topic + ".",
-			Form:     publishForm{},
-			Readonly: false,
+			Title:        "Tools",
+			User:         u,
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Flash:        "Published to " + form.Topic + ".",
+			Form:         publishForm{},
+			Readonly:     false,
 		})
 	}
 }
@@ -95,12 +99,13 @@ func renderToolsError(d ToolsDeps, w http.ResponseWriter, r *http.Request, form 
 	w.WriteHeader(http.StatusBadRequest)
 	u := auth.UserFromContext(r.Context())
 	d.Renderer.Render(w, "tools", toolsPageData{
-		Title:    "Tools",
-		User:     u,
-		CSRF:     auth.NewCSRFToken(),
-		Cluster:  d.Cluster,
-		Error:    msg,
-		Form:     form,
-		Readonly: u.Role != auth.RoleAdmin,
+		Title:        "Tools",
+		User:         u,
+		CSRF:         auth.NewCSRFToken(),
+		Cluster:      d.Cluster,
+		RegexEnabled: d.RegexEnabled,
+		Error:        msg,
+		Form:         form,
+		Readonly:     u.Role != auth.RoleAdmin,
 	})
 }

@@ -13,19 +13,21 @@ import (
 
 // UsersDeps bundles dependencies for the Users page.
 type UsersDeps struct {
-	Store    auth.CredStore
-	Renderer *Renderer
-	Cluster  bool
+	Store        auth.CredStore
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type usersPageData struct {
-	Title   string
-	User    auth.User
-	CSRF    string
-	Cluster bool
-	Flash   string
-	Error   string
-	Items   []userRow
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Error        string
+	Items        []userRow
 }
 
 type userRow struct {
@@ -160,12 +162,13 @@ func renderUsersPage(d UsersDeps, w http.ResponseWriter, r *http.Request, flash,
 		})
 	}
 	d.Renderer.Render(w, "users", usersPageData{
-		Title:   "Users",
-		User:    auth.UserFromContext(r.Context()),
-		CSRF:    auth.NewCSRFToken(),
-		Cluster: d.Cluster,
-		Flash:   flash,
-		Error:   errMsg,
-		Items:   rows,
+		Title:        "Users",
+		User:         auth.UserFromContext(r.Context()),
+		CSRF:         auth.NewCSRFToken(),
+		Cluster:      d.Cluster,
+		RegexEnabled: d.RegexEnabled,
+		Flash:        flash,
+		Error:        errMsg,
+		Items:        rows,
 	})
 }

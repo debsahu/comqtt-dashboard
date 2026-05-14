@@ -12,9 +12,10 @@ import (
 )
 
 type SubscriptionsDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type subRow struct {
@@ -26,14 +27,15 @@ type subRow struct {
 }
 
 type subPageData struct {
-	Title    string
-	User     auth.User
-	CSRF     string
-	Cluster  bool
-	Flash    string
-	Topic    string
-	ClientID string
-	Page     rest.Page[subRow]
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Topic        string
+	ClientID     string
+	Page         rest.Page[subRow]
 }
 
 func SubscriptionsList(d SubscriptionsDeps) http.HandlerFunc {
@@ -74,13 +76,14 @@ func SubscriptionsList(d SubscriptionsDeps) http.HandlerFunc {
 			Items: rest.ApplyPagination(all, params),
 		}
 		d.Renderer.Render(w, "subscriptions", subPageData{
-			Title:    "Subscriptions",
-			User:     auth.UserFromContext(r.Context()),
-			CSRF:     auth.NewCSRFToken(),
-			Cluster:  d.Cluster,
-			Topic:    r.URL.Query().Get("topic"),
-			ClientID: r.URL.Query().Get("clientid"),
-			Page:     page,
+			Title:        "Subscriptions",
+			User:         auth.UserFromContext(r.Context()),
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Topic:        r.URL.Query().Get("topic"),
+			ClientID:     r.URL.Query().Get("clientid"),
+			Page:         page,
 		})
 	}
 }

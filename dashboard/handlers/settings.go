@@ -20,10 +20,11 @@ import (
 type SettingsDeps struct {
 	// Source returns the value to be marshaled as YAML and shown.
 	// Defaults to a function that returns Server.Options if nil.
-	Source   func() any
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Source       func() any
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type settingsPageData struct {
@@ -31,6 +32,7 @@ type settingsPageData struct {
 	User            auth.User
 	CSRF            string
 	Cluster         bool
+	RegexEnabled    bool
 	Flash           string
 	HighlightedYAML template.HTML
 	HighlightCSS    template.CSS
@@ -103,6 +105,7 @@ func Settings(d SettingsDeps) http.HandlerFunc {
 			User:            auth.UserFromContext(r.Context()),
 			CSRF:            auth.NewCSRFToken(),
 			Cluster:         d.Cluster,
+			RegexEnabled:    d.RegexEnabled,
 			HighlightedYAML: template.HTML(highlighted.String()),
 			HighlightCSS:    template.CSS(chromaStyleCSS),
 		})

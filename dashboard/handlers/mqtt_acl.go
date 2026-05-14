@@ -16,9 +16,10 @@ import (
 // MQTTACLDeps bundles dependencies for the Authorization (ACL CRUD) page.
 // Backend may be nil; the page then renders a "not configured" notice.
 type MQTTACLDeps struct {
-	Backend  mqttauth.Backend
-	Renderer *Renderer
-	Cluster  bool
+	Backend      mqttauth.Backend
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type mqttACLPageData struct {
@@ -26,6 +27,7 @@ type mqttACLPageData struct {
 	User          auth.User
 	CSRF          string
 	Cluster       bool
+	RegexEnabled  bool
 	Flash         string
 	Error         string
 	Configured    bool
@@ -118,6 +120,7 @@ func renderMQTTACLPage(d MQTTACLDeps, w http.ResponseWriter, r *http.Request, fl
 		User:          auth.UserFromContext(r.Context()),
 		CSRF:          auth.NewCSRFToken(),
 		Cluster:       d.Cluster,
+		RegexEnabled:  d.RegexEnabled,
 		Flash:         flash,
 		Error:         errMsg,
 		SubjectFilter: subjectFilter,

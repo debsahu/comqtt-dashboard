@@ -17,9 +17,10 @@ var osHostname = os.Hostname
 
 // OverviewDeps bundles dependencies for the Overview handlers.
 type OverviewDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 	// Sampler is the per-second rate sampler. Optional - if nil, the rate
 	// cards report 0. Callers wiring the dashboard at startup should
 	// construct one via NewRateSampler and Stop() it at shutdown.
@@ -30,13 +31,14 @@ type OverviewDeps struct {
 }
 
 type overviewPageData struct {
-	Title    string
-	User     auth.User
-	CSRF     string
-	Cluster  bool
-	Flash    string
-	Cards    []card
-	NodeInfo nodeStatus
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Cards        []card
+	NodeInfo     nodeStatus
 }
 
 type nodeStatus struct {
@@ -72,12 +74,13 @@ type card struct {
 func OverviewGet(d OverviewDeps) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		d.Renderer.Render(w, "overview", overviewPageData{
-			Title:    "Overview",
-			User:     auth.UserFromContext(r.Context()),
-			CSRF:     auth.NewCSRFToken(),
-			Cluster:  d.Cluster,
-			Cards:    buildCards(d),
-			NodeInfo: buildNodeStatus(d),
+			Title:        "Overview",
+			User:         auth.UserFromContext(r.Context()),
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Cards:        buildCards(d),
+			NodeInfo:     buildNodeStatus(d),
 		})
 	}
 }

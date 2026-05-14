@@ -166,19 +166,19 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 		Renderer:   rdr,
 		SessionTTL: opts.SessionTTL,
 	}
-	overviewDeps := handlers.OverviewDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, Sampler: sampler, Agent: opts.ClusterAgent}
-	clientsDeps := handlers.ClientsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	clientDetailDeps := handlers.ClientDetailDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	subscriptionsDeps := handlers.SubscriptionsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	topicsDeps := handlers.TopicsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	retainedDeps := handlers.RetainedDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	sessionsDeps := handlers.SessionsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	blacklistDeps := handlers.BlacklistDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	toolsDeps := handlers.ToolsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	settingsDeps := handlers.SettingsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster}
-	usersDeps := handlers.UsersDeps{Store: store, Renderer: rdr, Cluster: opts.Cluster}
-	mqttAuthDeps := handlers.MQTTAuthDeps{Backend: opts.MQTTAuth, Renderer: rdr, Cluster: opts.Cluster}
-	mqttACLDeps := handlers.MQTTACLDeps{Backend: opts.MQTTAuth, Renderer: rdr, Cluster: opts.Cluster}
+	overviewDeps := handlers.OverviewDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil, Sampler: sampler, Agent: opts.ClusterAgent}
+	clientsDeps := handlers.ClientsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	clientDetailDeps := handlers.ClientDetailDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	subscriptionsDeps := handlers.SubscriptionsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	topicsDeps := handlers.TopicsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	retainedDeps := handlers.RetainedDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	sessionsDeps := handlers.SessionsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	blacklistDeps := handlers.BlacklistDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	toolsDeps := handlers.ToolsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	settingsDeps := handlers.SettingsDeps{Server: opts.Server, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	usersDeps := handlers.UsersDeps{Store: store, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	mqttAuthDeps := handlers.MQTTAuthDeps{Backend: opts.MQTTAuth, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
+	mqttACLDeps := handlers.MQTTACLDeps{Backend: opts.MQTTAuth, Renderer: rdr, Cluster: opts.Cluster, RegexEnabled: opts.RegexBackend != nil}
 
 	// Auth wrappers.
 	requireAuth := auth.RequireAuth(opts.Secret, store, opts.PasswordExpiryDays)
@@ -249,7 +249,7 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 
 	if opts.Cluster && opts.ClusterAgent != nil {
 		routes["GET /dashboard/cluster"] = wrap(handlers.ClusterPage(handlers.ClusterDeps{
-			Agent: opts.ClusterAgent, Renderer: rdr, Cluster: true,
+			Agent: opts.ClusterAgent, Renderer: rdr, Cluster: true, RegexEnabled: opts.RegexBackend != nil,
 		}))
 	}
 

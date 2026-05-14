@@ -20,9 +20,10 @@ type ClusterAgent interface {
 }
 
 type ClusterDeps struct {
-	Agent    ClusterAgent
-	Renderer *Renderer
-	Cluster  bool
+	Agent        ClusterAgent
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type clusterMemberRow struct {
@@ -33,14 +34,15 @@ type clusterMemberRow struct {
 }
 
 type clusterPageData struct {
-	Title   string
-	User    auth.User
-	CSRF    string
-	Cluster bool
-	Flash   string
-	Error   string
-	Members []clusterMemberRow
-	Leader  string
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Error        string
+	Members      []clusterMemberRow
+	Leader       string
 }
 
 func ClusterPage(d ClusterDeps) http.HandlerFunc {
@@ -60,12 +62,13 @@ func ClusterPage(d ClusterDeps) http.HandlerFunc {
 		sort.Slice(rows, func(i, j int) bool { return rows[i].Name < rows[j].Name })
 
 		d.Renderer.Render(w, "cluster", clusterPageData{
-			Title:   "Cluster",
-			User:    auth.UserFromContext(r.Context()),
-			CSRF:    auth.NewCSRFToken(),
-			Cluster: d.Cluster,
-			Members: rows,
-			Leader:  leader,
+			Title:        "Cluster",
+			User:         auth.UserFromContext(r.Context()),
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Members:      rows,
+			Leader:       leader,
 		})
 	}
 }

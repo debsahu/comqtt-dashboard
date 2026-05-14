@@ -14,22 +14,24 @@ import (
 
 // ClientsDeps bundles the dependencies for the Clients page.
 type ClientsDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type clientsPageData struct {
-	Title      string
-	User       auth.User
-	CSRF       string
-	Cluster    bool
-	Flash      string
-	Q          string
-	Page       rest.Page[clientRow]
-	TotalPages int
-	PrevQuery  string
-	NextQuery  string
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Q            string
+	Page         rest.Page[clientRow]
+	TotalPages   int
+	PrevQuery    string
+	NextQuery    string
 }
 
 // clientRow mirrors the JSON fields of rest/clients_list.go::clientSummary so
@@ -80,15 +82,16 @@ func ClientsList(d ClientsDeps) http.HandlerFunc {
 		}
 
 		d.Renderer.Render(w, "clients_list", clientsPageData{
-			Title:      "Clients",
-			User:       auth.UserFromContext(r.Context()),
-			CSRF:       auth.NewCSRFToken(),
-			Cluster:    d.Cluster,
-			Q:          r.URL.Query().Get("q"),
-			Page:       page,
-			TotalPages: totalPages,
-			PrevQuery:  pageQuery(r.URL.Query(), params.Page-1),
-			NextQuery:  pageQuery(r.URL.Query(), params.Page+1),
+			Title:        "Clients",
+			User:         auth.UserFromContext(r.Context()),
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Q:            r.URL.Query().Get("q"),
+			Page:         page,
+			TotalPages:   totalPages,
+			PrevQuery:    pageQuery(r.URL.Query(), params.Page-1),
+			NextQuery:    pageQuery(r.URL.Query(), params.Page+1),
 		})
 	}
 }

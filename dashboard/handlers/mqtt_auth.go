@@ -17,23 +17,25 @@ import (
 // auth; the page renders a "not configured" notice in that case rather
 // than failing the request.
 type MQTTAuthDeps struct {
-	Backend  mqttauth.Backend
-	Renderer *Renderer
-	Cluster  bool
+	Backend      mqttauth.Backend
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type mqttAuthPageData struct {
-	Title       string
-	User        auth.User
-	CSRF        string
-	Cluster     bool
-	Flash       string
-	Error       string
-	Configured  bool
-	BackendKind string
-	Mode        string
-	HashType    string
-	Items       []mqttUserRow
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Error        string
+	Configured   bool
+	BackendKind  string
+	Mode         string
+	HashType     string
+	Items        []mqttUserRow
 }
 
 type mqttUserRow struct {
@@ -133,12 +135,13 @@ func MQTTAuthDelete(d MQTTAuthDeps) http.HandlerFunc {
 
 func renderMQTTAuthPage(d MQTTAuthDeps, w http.ResponseWriter, r *http.Request, flash, errMsg string) {
 	page := mqttAuthPageData{
-		Title:   "Authentication",
-		User:    auth.UserFromContext(r.Context()),
-		CSRF:    auth.NewCSRFToken(),
-		Cluster: d.Cluster,
-		Flash:   flash,
-		Error:   errMsg,
+		Title:        "Authentication",
+		User:         auth.UserFromContext(r.Context()),
+		CSRF:         auth.NewCSRFToken(),
+		Cluster:      d.Cluster,
+		RegexEnabled: d.RegexEnabled,
+		Flash:        flash,
+		Error:        errMsg,
 	}
 	if d.Backend != nil {
 		page.Configured = true

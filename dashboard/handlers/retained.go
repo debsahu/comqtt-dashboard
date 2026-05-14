@@ -16,9 +16,10 @@ import (
 const retainedDashboardPayloadCap = 4096
 
 type RetainedDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type retainedRow struct {
@@ -31,15 +32,16 @@ type retainedRow struct {
 }
 
 type retainedPageData struct {
-	Title      string
-	User       auth.User
-	CSRF       string
-	Cluster    bool
-	Flash      string
-	Topic      string
-	IncludeSys bool
-	Page       rest.Page[retainedRow]
-	Readonly   bool
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Topic        string
+	IncludeSys   bool
+	Page         rest.Page[retainedRow]
+	Readonly     bool
 }
 
 func RetainedList(d RetainedDeps) http.HandlerFunc {
@@ -82,14 +84,15 @@ func RetainedList(d RetainedDeps) http.HandlerFunc {
 		}
 		u := auth.UserFromContext(r.Context())
 		d.Renderer.Render(w, "retained", retainedPageData{
-			Title:      "Retained",
-			User:       u,
-			CSRF:       auth.NewCSRFToken(),
-			Cluster:    d.Cluster,
-			Topic:      r.URL.Query().Get("topic"),
-			IncludeSys: includeSys,
-			Page:       page,
-			Readonly:   u.Role != auth.RoleAdmin,
+			Title:        "Retained",
+			User:         u,
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Topic:        r.URL.Query().Get("topic"),
+			IncludeSys:   includeSys,
+			Page:         page,
+			Readonly:     u.Role != auth.RoleAdmin,
 		})
 	}
 }

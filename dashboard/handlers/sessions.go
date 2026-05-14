@@ -12,9 +12,10 @@ import (
 )
 
 type SessionsDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type sessionRowDash struct {
@@ -26,14 +27,15 @@ type sessionRowDash struct {
 }
 
 type sessionsPageData struct {
-	Title    string
-	User     auth.User
-	CSRF     string
-	Cluster  bool
-	Flash    string
-	Online   string
-	Page     rest.Page[sessionRowDash]
-	Readonly bool
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Online       string
+	Page         rest.Page[sessionRowDash]
+	Readonly     bool
 }
 
 func SessionsList(d SessionsDeps) http.HandlerFunc {
@@ -65,13 +67,14 @@ func SessionsList(d SessionsDeps) http.HandlerFunc {
 		}
 		u := auth.UserFromContext(r.Context())
 		d.Renderer.Render(w, "sessions", sessionsPageData{
-			Title:    "Sessions",
-			User:     u,
-			CSRF:     auth.NewCSRFToken(),
-			Cluster:  d.Cluster,
-			Online:   onlineParam,
-			Page:     page,
-			Readonly: u.Role != auth.RoleAdmin,
+			Title:        "Sessions",
+			User:         u,
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Online:       onlineParam,
+			Page:         page,
+			Readonly:     u.Role != auth.RoleAdmin,
 		})
 	}
 }

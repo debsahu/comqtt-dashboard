@@ -13,20 +13,22 @@ import (
 
 // BlacklistDeps bundles dependencies for the Blacklist page.
 type BlacklistDeps struct {
-	Server   *mqtt.Server
-	Renderer *Renderer
-	Cluster  bool
+	Server       *mqtt.Server
+	Renderer     *Renderer
+	Cluster      bool
+	RegexEnabled bool
 }
 
 type blacklistPageData struct {
-	Title    string
-	User     auth.User
-	CSRF     string
-	Cluster  bool
-	Flash    string
-	Error    string
-	Items    []string
-	Readonly bool
+	Title        string
+	User         auth.User
+	CSRF         string
+	Cluster      bool
+	RegexEnabled bool
+	Flash        string
+	Error        string
+	Items        []string
+	Readonly     bool
 }
 
 // BlacklistGet renders the blacklist page (GET /dashboard/blacklist).
@@ -34,12 +36,13 @@ func BlacklistGet(d BlacklistDeps) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		u := auth.UserFromContext(r.Context())
 		d.Renderer.Render(w, "blacklist", blacklistPageData{
-			Title:    "Blacklist",
-			User:     u,
-			CSRF:     auth.NewCSRFToken(),
-			Cluster:  d.Cluster,
-			Items:    snapshotBlacklist(d.Server),
-			Readonly: u.Role != auth.RoleAdmin,
+			Title:        "Blacklist",
+			User:         u,
+			CSRF:         auth.NewCSRFToken(),
+			Cluster:      d.Cluster,
+			RegexEnabled: d.RegexEnabled,
+			Items:        snapshotBlacklist(d.Server),
+			Readonly:     u.Role != auth.RoleAdmin,
 		})
 	}
 }
