@@ -186,7 +186,39 @@ func realMain(ctx context.Context) error {
 			if err := server.AddHook(&comqttauth.Hook{}, &comqttauth.HookOptions{Backend: regexBackend}); err != nil {
 				return fmt.Errorf("comqttauth hook: %w", err)
 			}
-			_ = regexBackend // placeholder; seeding wired in next commit
+			seedCtx, cancelSeed := context.WithTimeout(context.Background(), 5*time.Second)
+			seeded, err := regexBackend.GetRegexSeeded(seedCtx)
+			cancelSeed()
+			if err != nil {
+				return fmt.Errorf("comqttauth seeded check: %w", err)
+			}
+			if !seeded {
+				seed := comqttauth.RegexRule{
+					Order:         999999,
+					Permission:    comqttauth.PermissionAllow,
+					SubjectKind:   comqttauth.SubjectUsername,
+					Action:        comqttauth.ActionAll,
+					TopicPatterns: []string{"#"},
+				}
+				if authRegexStrict {
+					seed.Permission = comqttauth.PermissionDeny
+				}
+				putCtx, cancelPut := context.WithTimeout(context.Background(), 5*time.Second)
+				if _, err := regexBackend.PutRegexRule(putCtx, seed); err != nil {
+					cancelPut()
+					return fmt.Errorf("comqttauth seed rule: %w", err)
+				}
+				cancelPut()
+				markCtx, cancelMark := context.WithTimeout(context.Background(), 5*time.Second)
+				if err := regexBackend.SetRegexSeeded(markCtx); err != nil {
+					cancelMark()
+					return fmt.Errorf("comqttauth mark seeded: %w", err)
+				}
+				cancelMark()
+				log.Info("seeded initial regex rule",
+					"permission", seed.Permission.String(),
+					"strict_mode", authRegexStrict)
+			}
 		}
 	}
 
