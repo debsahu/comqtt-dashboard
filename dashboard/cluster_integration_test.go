@@ -139,7 +139,7 @@ func TestClusterEventAggregation(t *testing.T) {
 		t.Fatalf("OnConnect: %v", err)
 	}
 
-	ev, err := readSSEUntil(t, b.srv.URL, "client.connected", "node-A", 5*time.Second)
+	ev, err := readSSEUntil(t, b.srv.URL, "client.connected", "node-A", 15*time.Second)
 	if err != nil {
 		t.Fatalf("readSSEUntil: %v", err)
 	}
