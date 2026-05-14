@@ -72,6 +72,8 @@ github.com/debsahu/comqtt/v2 v2.6.1-dashboard.1 h1:R/RLdvs0UcbiaaV2a7i9CaGgADqDV
 github.com/debsahu/comqtt/v2 v2.6.1-dashboard.1/go.mod h1:XZ1yuPSxZjhlfs47+5LhTShNiwXo7PZmz79mmaL/Tkw=
 github.com/debsahu/comqttauth v0.2.0 h1:RBsKDDUWgHpBsxBprrvk5gnZZtZLG/DxP2eb0o0j4Bo=
 github.com/debsahu/comqttauth v0.2.0/go.mod h1:jSF4oKTRp1RYOEUoemIi6ZO534GnmQW4Vw1DC1mP1aI=
+github.com/debsahu/comqttauth v0.2.1 h1:9eE7Y8rObJJ4NCxOFlSXhCeyxp5aOduuOI4YCzj68DE=
+github.com/debsahu/comqttauth v0.2.1/go.mod h1:EksISlJXR4W3CLI4oabDip0Wt4J/sSJpfboQ+6WRGNA=
 github.com/dgraph-io/badger v1.6.0 h1:DshxFxZWXUcO0xX476VJC07Xsr6ZCBVRHKZ93Oh7Evo=
 github.com/dgraph-io/badger v1.6.0/go.mod h1:zwt7syl517jmP8s94KqSxTlM6IMsdhYy6psNgSztDR4=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 h1:tdlZCpZ/P9DhczCTSixgIKmwPv6+wP5DGjqLYw5SUiA=

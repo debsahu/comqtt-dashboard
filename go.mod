@@ -5,7 +5,7 @@ go 1.26.2
 require (
 	github.com/alecthomas/chroma/v2 v2.24.1
 	github.com/alicebob/miniredis/v2 v2.38.0
-	github.com/debsahu/comqttauth v0.2.0
+	github.com/debsahu/comqttauth v0.2.1
 	github.com/redis/go-redis/v9 v9.19.0
 	github.com/wind-c/comqtt/v2 v2.6.4
 	go.etcd.io/bbolt v1.4.0
