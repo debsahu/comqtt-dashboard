@@ -42,8 +42,10 @@ import (
 
 	addonclusterrest "github.com/debsahu/comqtt-dashboard/cluster/rest"
 	"github.com/debsahu/comqtt-dashboard/dashboard"
+	"github.com/debsahu/comqtt-dashboard/internal/comqttauthadapter"
 	"github.com/debsahu/comqtt-dashboard/mqttauth"
 	addonrest "github.com/debsahu/comqtt-dashboard/rest"
+	"github.com/debsahu/comqttauth"
 )
 
 func pprof() {
@@ -192,6 +194,33 @@ func realMain(ctx context.Context) error {
 			return fmt.Errorf("mqtt auth backend: %w", err)
 		}
 		defer mqttAuthBackend.Close()
+	}
+
+	// Optional regex authorization layer. When --auth-regex=true the cmd
+	// binary additionally constructs a comqttauth.Backend, installs a
+	// comqttauth.Hook in the broker alongside the upstream auth plugin
+	// (coexist mode), and wires the Backend into the dashboard so the
+	// regex page can manage rules. The Hook is regex-ACL-only; upstream
+	// plugin/auth/* keeps handling connection auth + exact-match ACL.
+	var regexBackend comqttauth.Backend
+	if authRegexEnabled {
+		regexCfg, err := comqttauthadapter.FromComqttConfig(cfg)
+		if err != nil {
+			return fmt.Errorf("comqttauth config: %w", err)
+		}
+		if regexCfg == nil {
+			log.Warn("--auth-regex=true ignored: anonymous or HTTP-delegated auth has no manageable backend")
+		} else {
+			regexBackend, err = comqttauth.New(*regexCfg)
+			if err != nil {
+				return fmt.Errorf("comqttauth backend: %w", err)
+			}
+			defer regexBackend.Close()
+			if err := server.AddHook(&comqttauth.Hook{}, &comqttauth.HookOptions{Backend: regexBackend}); err != nil {
+				return fmt.Errorf("comqttauth hook: %w", err)
+			}
+			_ = regexBackend // placeholder; seeding wired in next commit
+		}
 	}
 
 	dashCleanup := func() {}
