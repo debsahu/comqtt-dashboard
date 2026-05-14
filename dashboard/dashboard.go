@@ -16,6 +16,7 @@ import (
 	"github.com/debsahu/comqtt-dashboard/dashboard/sse"
 	"github.com/debsahu/comqtt-dashboard/mqttauth"
 	"github.com/debsahu/comqtt-dashboard/rest"
+	"github.com/debsahu/comqttauth"
 	redis "github.com/redis/go-redis/v9"
 	"github.com/wind-c/comqtt/v2/mqtt"
 )
@@ -80,6 +81,12 @@ type Options struct {
 	// configured with anonymous or HTTP-delegated auth - the pages then
 	// render a "not configured" notice.
 	MQTTAuth mqttauth.Backend
+
+	// RegexBackend is the comqttauth Backend used by the v0.4.0 regex
+	// authorization page. Nil when --auth-regex=false. When nil, the
+	// regex page route is not mounted and the nav link is hidden via
+	// each page's RegexEnabled bool.
+	RegexBackend comqttauth.Backend
 }
 
 // Routes returns the full set of HTTP routes for the dashboard, ready to be

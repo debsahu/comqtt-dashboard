@@ -230,6 +230,7 @@ func realMain(ctx context.Context) error {
 			Secret:             dashCfg.decodeSecret(),
 			PasswordExpiryDays: dashCfg.PasswordExpiryDays,
 			MQTTAuth:           mqttAuthBackend,
+			RegexBackend:       regexBackend,
 		})
 		if err != nil {
 			return fmt.Errorf("dashboard routes: %w", err)

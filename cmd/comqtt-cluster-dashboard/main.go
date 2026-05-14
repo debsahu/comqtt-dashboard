@@ -267,6 +267,7 @@ func realMain(ctx context.Context) error {
 			PasswordExpiryDays: dashCfg.PasswordExpiryDays,
 			Redis:              redisClient,
 			MQTTAuth:           mqttAuthBackend,
+			RegexBackend:       regexBackend,
 		})
 		if err != nil {
 			return fmt.Errorf("dashboard routes: %w", err)
