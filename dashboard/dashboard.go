@@ -253,6 +253,21 @@ func Routes(opts Options) (map[string]rest.Handler, func(), error) {
 		}))
 	}
 
+	if opts.RegexBackend != nil {
+		mqttACLRegexDeps := handlers.MQTTACLRegexDeps{
+			Backend:      opts.RegexBackend,
+			Renderer:     rdr,
+			Cluster:      opts.Cluster,
+			RegexEnabled: true,
+		}
+		routes["GET /dashboard/mqtt-acl-regex"] = wrapAdmin(handlers.MQTTACLRegexList(mqttACLRegexDeps))
+		routes["POST /dashboard/mqtt-acl-regex"] = wrapAdmin(handlers.MQTTACLRegexCreate(mqttACLRegexDeps))
+		routes["POST /dashboard/mqtt-acl-regex/{id}"] = wrapAdmin(handlers.MQTTACLRegexUpdate(mqttACLRegexDeps))
+		routes["POST /dashboard/mqtt-acl-regex/{id}/delete"] = wrapAdmin(handlers.MQTTACLRegexDelete(mqttACLRegexDeps))
+		routes["POST /dashboard/mqtt-acl-regex/{id}/up"] = wrapAdmin(handlers.MQTTACLRegexReorder(mqttACLRegexDeps, "up"))
+		routes["POST /dashboard/mqtt-acl-regex/{id}/down"] = wrapAdmin(handlers.MQTTACLRegexReorder(mqttACLRegexDeps, "down"))
+	}
+
 	cleanup := func() {
 		sampler.Stop()
 		if bridge != nil {
