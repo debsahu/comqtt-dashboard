@@ -134,20 +134,41 @@ func TestClusterEventAggregation(t *testing.T) {
 	cl.Properties.Username = []byte("u")
 	cl.Net.Remote = "127.0.0.1:0"
 
+	// Open the SSE reader FIRST in a goroutine. The hub is fan-out and does
+	// not buffer for not-yet-connected subscribers, so publishing before the
+	// reader subscribes drops the event. (The companion test
+	// TestClusterEventAggregationOwnNodeFiltered handles this same race.)
+	type sseResult struct {
+		ev  sse.Event
+		err error
+	}
+	resultCh := make(chan sseResult, 1)
+	go func() {
+		ev, err := readSSEUntil(t, b.srv.URL, "client.connected", "node-A", 10*time.Second)
+		resultCh <- sseResult{ev: ev, err: err}
+	}()
+
+	// Allow the SSE handler to subscribe to b.hub before publishing.
+	time.Sleep(100 * time.Millisecond)
+
 	hubHook := &sse.HubHook{Hub: a.hub, Node: "node-A"}
 	if err := hubHook.OnConnect(cl, packets.Packet{}); err != nil {
 		t.Fatalf("OnConnect: %v", err)
 	}
 
-	ev, err := readSSEUntil(t, b.srv.URL, "client.connected", "node-A", 15*time.Second)
-	if err != nil {
-		t.Fatalf("readSSEUntil: %v", err)
-	}
-	if ev.Node != "node-A" {
-		t.Fatalf("expected node=node-A, got %q", ev.Node)
-	}
-	if ev.Type != "client.connected" {
-		t.Fatalf("expected type=client.connected, got %q", ev.Type)
+	select {
+	case r := <-resultCh:
+		if r.err != nil {
+			t.Fatalf("readSSEUntil: %v", r.err)
+		}
+		if r.ev.Node != "node-A" {
+			t.Fatalf("expected node=node-A, got %q", r.ev.Node)
+		}
+		if r.ev.Type != "client.connected" {
+			t.Fatalf("expected type=client.connected, got %q", r.ev.Type)
+		}
+	case <-time.After(15 * time.Second):
+		t.Fatal("test timed out waiting for SSE event")
 	}
 }
 
