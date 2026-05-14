@@ -1,0 +1,113 @@
+{{define "mqtt_acl_regex"}}{{template "layout" .}}{{end}}
+
+{{define "content"}}
+<div class="space-y-4">
+  <div class="flex items-end justify-between">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight">Authorization (regex)</h1>
+      <p class="text-sm text-muted-foreground mt-1">EMQX-style regex authorization rules. Evaluated in order; first match wins. No match defaults to allow.</p>
+    </div>
+  </div>
+
+  {{with .Flash}}<div class="rounded bg-success/10 text-success border border-success/20 p-2 text-sm">{{.}}</div>{{end}}
+  {{with .Error}}<div class="rounded bg-destructive/10 text-destructive border border-destructive/20 p-2 text-sm">{{.}}</div>{{end}}
+
+  <form method="POST" action="/dashboard/mqtt-acl-regex" class="bg-card text-card-foreground rounded shadow-sm border border-border p-4 space-y-3">
+    <input type="hidden" name="_csrf" value="{{.CSRF}}" />
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <label class="block">
+        <span class="text-xs text-muted-foreground">Order</span>
+        <input name="order" type="number" required value="100"
+          class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm" />
+      </label>
+      <label class="block">
+        <span class="text-xs text-muted-foreground">Permission</span>
+        <select name="permission" class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm">
+          <option value="allow">allow</option>
+          <option value="deny">deny</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-xs text-muted-foreground">Action</span>
+        <select name="action" class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm">
+          <option value="pub">pub</option>
+          <option value="sub">sub</option>
+          <option value="all">all</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-xs text-muted-foreground">Subject kind</span>
+        <select name="subject_kind" class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm">
+          <option value="username">username</option>
+          <option value="clientid">clientid</option>
+          <option value="ipaddr">ipaddr</option>
+          <option value="cert.cn">cert.cn</option>
+          <option value="cert.subject">cert.subject</option>
+        </select>
+      </label>
+    </div>
+    <label class="block">
+      <span class="text-xs text-muted-foreground">Subject pattern (empty = any, <code>re:&lt;regex&gt;</code>, <code>cidr:&lt;net&gt;</code>, or literal)</span>
+      <input name="subject_pattern" placeholder="re:^device-\d+$"
+        class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm font-mono" />
+    </label>
+    <label class="block">
+      <span class="text-xs text-muted-foreground">Topic patterns (one per line; <code>+</code> <code>#</code> wildcards; placeholders <code>${username}</code> <code>${clientid}</code> <code>${peerhost}</code> <code>${cert_common_name}</code> <code>${cert_subject}</code>)</span>
+      <textarea name="topic_patterns" rows="3" required placeholder="sensors/${clientid}/#"
+        class="mt-1 w-full px-3 py-2 rounded border border-input bg-input text-sm font-mono"></textarea>
+    </label>
+    <button class="px-4 py-2 rounded bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium">Add rule</button>
+  </form>
+
+  <div class="overflow-x-auto bg-card text-card-foreground rounded shadow-sm border border-border">
+    <table class="min-w-full text-sm">
+      <thead class="bg-muted text-muted-foreground uppercase tracking-wide">
+        <tr>
+          <th class="text-left px-4 py-2 font-medium">Order</th>
+          <th class="text-left px-4 py-2 font-medium">Permission</th>
+          <th class="text-left px-4 py-2 font-medium">Subject</th>
+          <th class="text-left px-4 py-2 font-medium">Action</th>
+          <th class="text-left px-4 py-2 font-medium">Topic patterns</th>
+          <th class="text-right px-4 py-2 font-medium">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        {{range .Items}}
+        <tr class="hover:bg-muted">
+          <td class="px-4 py-2 font-mono">{{.Order}}</td>
+          <td class="px-4 py-2">
+            {{if eq .Permission.String "allow"}}
+              <span class="inline-flex items-center rounded bg-success/10 text-success border border-success/20 px-2 py-0.5 text-xs">allow</span>
+            {{else}}
+              <span class="inline-flex items-center rounded bg-destructive/10 text-destructive border border-destructive/20 px-2 py-0.5 text-xs">deny</span>
+            {{end}}
+          </td>
+          <td class="px-4 py-2 font-mono">{{.SubjectKind.String}}{{with .SubjectPattern}}:<span class="text-muted-foreground">{{.}}</span>{{end}}</td>
+          <td class="px-4 py-2 font-mono">{{.Action.String}}</td>
+          <td class="px-4 py-2 font-mono">
+            {{range $i, $p := .TopicPatterns}}{{if $i}}<br>{{end}}{{$p}}{{end}}
+          </td>
+          <td class="px-4 py-2 text-right space-x-1">
+            <form method="POST" action="/dashboard/mqtt-acl-regex/{{.ID}}/up" class="inline">
+              <input type="hidden" name="_csrf" value="{{$.CSRF}}" />
+              <button class="text-xs text-foreground hover:underline">&uarr;</button>
+            </form>
+            <form method="POST" action="/dashboard/mqtt-acl-regex/{{.ID}}/down" class="inline">
+              <input type="hidden" name="_csrf" value="{{$.CSRF}}" />
+              <button class="text-xs text-foreground hover:underline">&darr;</button>
+            </form>
+            <form method="POST" action="/dashboard/mqtt-acl-regex/{{.ID}}/delete" class="inline"
+                  onsubmit="return confirm('Delete this rule? This cannot be undone.');">
+              <input type="hidden" name="_csrf" value="{{$.CSRF}}" />
+              <button class="text-xs text-destructive hover:underline">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-muted-foreground">No regex rules. Add one above.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
