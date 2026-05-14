@@ -71,6 +71,10 @@ func realMain(ctx context.Context) error {
 	flag.UintVar(&cfg.Auth.Way, "auth-way", 0, "authentication way: 0 anonymous, 1 username/password, 2 clientid")
 	flag.UintVar(&cfg.Auth.Datasource, "auth-ds", 0, "authentication datasource: 0 free, 1 redis, 2 mysql, 3 postgresql, 4 http")
 	flag.StringVar(&cfg.Auth.ConfPath, "auth-path", "", "config file path corresponding to the auth-datasource")
+	var authRegexEnabled bool
+	var authRegexStrict bool
+	flag.BoolVar(&authRegexEnabled, "auth-regex", false, "enable regex authorization layer (requires --auth-way>0 and --auth-ds!=4)")
+	flag.BoolVar(&authRegexStrict, "auth-regex-strict", false, "first-load seed mode: false=allow-all (default), true=deny-all (operator must whitelist via explicit allow rules)")
 	flag.StringVar(&cfg.Mqtt.TCP, "tcp", ":1883", "network address for MQTT TCP listener")
 	flag.StringVar(&cfg.Mqtt.WS, "ws", ":1882", "network address for MQTT WebSocket listener")
 	flag.StringVar(&cfg.Mqtt.HTTP, "http", ":8080", "network address for HTTP listener (REST + dashboard)")
