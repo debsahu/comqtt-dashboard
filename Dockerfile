@@ -1,9 +1,10 @@
 # syntax=docker/dockerfile:1.7
 
 # ----- builder ----------------------------------------------------------------
-# Pinned to the Go version in go.mod (1.24). Alpine keeps the build image small;
-# CGO_ENABLED=0 below makes the produced binaries copyable into distroless.
-FROM golang:1.24-alpine AS builder
+# Pinned to the Go version in go.mod (currently 1.26 after the comqttauth v0.2.0
+# bump). Alpine keeps the build image small; CGO_ENABLED=0 below makes the
+# produced binaries copyable into distroless.
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /src
 
