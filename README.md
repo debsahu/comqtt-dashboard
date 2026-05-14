@@ -45,6 +45,7 @@ coexist; pick the one whose surface matches your operations need.
 - `v0.2.0` / `v0.2.1` - cluster-mode add-on (StatefulSet, Helm chart, image, CI).
 - `v0.3.0` - Authentication + Authorization pages, four auth backends.
 - `v0.3.1` - fix file-backend auth hook installation; document its restart requirement.
+- `v0.4.0` - optional EMQX-style regex authorization layer via `github.com/debsahu/comqttauth`; enable with `--auth-regex=true`. Includes comqtt v2.6.4 upstream bump.
 
 ## How to run
 
@@ -70,6 +71,20 @@ reads `cfg.Auth.*` at startup and selects the matching backend; with
 > restarts. For live reload, use the redis, mysql, or postgresql
 > backends. v0.4.0 removes this limitation by shipping a replacement
 > auth hook that reads from the file backend on every check.
+
+> **Note on regex authorization (v0.4.0):** the dashboard ships an optional
+> regex ACL layer on top of comqtt's existing exact-match auth. Enable with
+> `--auth-regex=true` (or helm value `config.auth.regex.enabled: true`).
+> When enabled, the dashboard adds an Authorization (regex) page at
+> `/dashboard/mqtt-acl-regex`. Rules are EMQX-style: ordered, first-match-wins,
+> with regex/CIDR subject matchers, MQTT topic patterns with placeholder
+> substitution (`${username}`, `${clientid}`, `${peerhost}`, `${cert_common_name}`,
+> `${cert_subject}`), and pub/sub/all action filters. The regex layer is
+> additive: comqtt's `plugin/auth/*` continues to handle connection auth and
+> exact-match ACL; the regex hook only enforces additional deny patterns.
+> Strict mode (`--auth-regex-strict=true`) seeds a deny-all rule on first load
+> so the regex layer denies by default; operators add explicit allow rules
+> to whitelist.
 
 ## Configuration
 
