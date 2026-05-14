@@ -209,6 +209,19 @@ config:
     datasource: 0
     conf-path: ""
     blacklist-path: ""
+    regex:
+      # -- Enable the EMQX-style regex authorization layer (v0.4.0). When
+      #    true the dashboard mounts /dashboard/mqtt-acl-regex and the
+      #    broker installs comqttauth.Hook alongside the upstream auth
+      #    plugin. Default false; recommended to set ConfigMap/Helm value
+      #    explicitly rather than relying on default.
+      enabled: false
+      # -- First-load seed mode. When false (default), seeds an allow-all
+      #    rule (decorative; matches the runtime default-allow). When
+      #    true, seeds a deny-all rule (operator must add explicit allows
+      #    for any traffic). The flag has effect only on the first ever
+      #    load against the storage backend; subsequent restarts ignore it.
+      strict: false
 
   mqtt:
     tcp: ":1883"

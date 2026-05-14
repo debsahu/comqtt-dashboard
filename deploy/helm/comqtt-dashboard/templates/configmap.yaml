@@ -17,6 +17,10 @@ metadata:
     {{- include "comqtt.labels" . | nindent 4 }}
 data:
 {{- $cfgBase := deepCopy .Values.config -}}
+{{- /* Strip helm-only keys that must not reach the broker config parser. */ -}}
+{{- if hasKey $cfgBase "auth" -}}
+{{- $_ := unset (index $cfgBase "auth") "regex" -}}
+{{- end -}}
 {{- /* Always inject the dashboard section — the add-on serves it unconditionally. */ -}}
 {{- $_ := set $cfgBase "dashboard" (dict
     "enabled" true
@@ -116,5 +120,14 @@ data:
     cat /tmp/comqtt/config.yml
     echo "[entrypoint] exec /comqtt-cluster-dashboard"
 
-    exec /comqtt-cluster-dashboard --conf=/tmp/comqtt/config.yml
+    EXTRA_ARGS=""
+    if [ "${AUTH_REGEX:-false}" = "true" ]; then
+      EXTRA_ARGS="${EXTRA_ARGS} --auth-regex=true"
+    fi
+    if [ "${AUTH_REGEX_STRICT:-false}" = "true" ]; then
+      EXTRA_ARGS="${EXTRA_ARGS} --auth-regex-strict=true"
+    fi
+
+    # shellcheck disable=SC2086
+    exec /comqtt-cluster-dashboard --conf=/tmp/comqtt/config.yml ${EXTRA_ARGS}
 {{- end }}

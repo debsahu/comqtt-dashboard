@@ -43,6 +43,12 @@ spec:
           command: [{{ include "comqtt.binary" . | quote }}]
           args:
             - --conf=/etc/comqtt/config.yml
+            {{- if .Values.config.auth.regex.enabled }}
+            - --auth-regex=true
+            {{- end }}
+            {{- if .Values.config.auth.regex.strict }}
+            - --auth-regex-strict=true
+            {{- end }}
           env:
             {{- include "comqtt.dashboardEnv" . | nindent 12 }}
           ports:
